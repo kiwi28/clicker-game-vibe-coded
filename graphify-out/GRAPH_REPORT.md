@@ -1,17 +1,17 @@
 # Graph Report - ai-slop-game  (2026-11-17)
 
 ## Corpus Check
-- 15 files · ~12,369 words
+- 15 files · ~12,373 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 4 file(s) not represented in the graph (top: (none) 2, .zip 1, .css 1)
 
 ## Summary
-- 192 nodes · 396 edges · 10 communities (9 shown, 1 thin omitted)
+- 192 nodes · 397 edges · 10 communities (9 shown, 1 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 7 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3c8418da`
+- Built from commit: `9c5e20df`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -32,22 +32,22 @@
 3. `init()` - 9 edges
 4. `renderHud()` - 8 edges
 5. `renderMoms()` - 8 edges
-6. `setupDevMenu()` - 7 edges
-7. `BuildingId` - 7 edges
-8. `frame()` - 7 edges
+6. `frame()` - 7 edges
+7. `setupDevMenu()` - 7 edges
+8. `BuildingId` - 7 edges
 9. `buyMaxBuilding()` - 7 edges
 10. `buildingRateText()` - 6 edges
 
 ## Surprising Connections (you probably didn't know these)
+- `checkAndShowAchievements()` --calls--> `showAchievement()`  [EXTRACTED]
+  src/main.ts → src/ui.ts
+- `openDevModal` --calls--> `passivePerSecond()`  [EXTRACTED]
+  src/main.ts → src/game.ts
+- `frame()` --calls--> `spawnBuildingSlices()`  [EXTRACTED]
+  src/main.ts → src/ui.ts
 - `init()` --calls--> `applyClickZonePattern()`  [EXTRACTED]
   src/ui.ts → src/pattern.ts
 - `renderHud()` --calls--> `formatNumber()`  [EXTRACTED]
-  src/ui.ts → src/format.ts
-- `renderMoms()` --calls--> `scaleFactor()`  [EXTRACTED]
-  src/ui.ts → src/fatness.ts
-- `buildUpgradeList()` --calls--> `buyClickUpgrade()`  [EXTRACTED]
-  src/ui.ts → src/game.ts
-- `renderUpgrades()` --calls--> `formatNumber()`  [EXTRACTED]
   src/ui.ts → src/format.ts
 
 ## Import Cycles

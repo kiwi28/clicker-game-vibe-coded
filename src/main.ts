@@ -126,6 +126,7 @@ ui.setupMenu(resetGame, openDevModal);
 let clickCount = 0;
 
 els.momCluster.addEventListener("click", () => {
+	if (ui.isExploding()) return;
 	clickCount += 1;
 	const gain = clickMom(state);
 	monitorPrestige();

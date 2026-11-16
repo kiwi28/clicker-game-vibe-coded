@@ -59,7 +59,7 @@ const EDGE_INSET = 24;
 /** Emoji shown briefly when the fatness stage changes. */
 const EXPLOSION_EMOJI = "💥";
 /** How long the explosion emoji replaces the mom during a stage transition. */
-const EXPLOSION_DURATION_MS = 400;
+const EXPLOSION_DURATION_MS = 300;
 /** `scaleFactor` caps at 2× — the mom's size at the very end of a stage. */
 const EXPLOSION_SCALE = 2;
 
@@ -69,7 +69,7 @@ let currentStage: number | null = null;
 let explosionUntil = 0;
 
 /** True while the stage-transition explosion is still showing. */
-function isExploding(): boolean {
+export function isExploding(): boolean {
 	return performance.now() < explosionUntil;
 }
 
