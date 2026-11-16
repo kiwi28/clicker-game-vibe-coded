@@ -1,14 +1,14 @@
 :root {
-  --bg: #1a110a;
-  --panel: #251609;
-  --card: #34200f;
-  --text: #f6e7cf;
-  --muted: #b18e66;
-  --accent: #ef7a1f;
-  --gold: #ffbe4d;
-  --good: #a9b85a;
-  --buy: #4caf50;
-  --buy-max: #2196f3;
+  --bg: #0c1410;
+  --panel: #14201a;
+  --card: #1d2e25;
+  --text: #e8f3e6;
+  --muted: #7fa88c;
+  --accent: #a3e635;
+  --gold: #f5c542;
+  --good: #7ee2a8;
+  --buy: #3ecf6e;
+  --buy-max: #3aa0f5;
 }
 
 * {
@@ -178,7 +178,7 @@ body {
   padding: 8px 10px;
   border: none;
   border-radius: 8px;
-  color: #1a110a;
+  color: #0c1410;
   font-family: inherit;
   font-size: 13px;
   font-weight: 700;
@@ -425,7 +425,7 @@ body {
   padding: 8px 10px;
   border: none;
   border-radius: 8px;
-  color: #1a110a;
+  color: #0c1410;
   font-family: inherit;
   font-size: 13px;
   font-weight: 700;
