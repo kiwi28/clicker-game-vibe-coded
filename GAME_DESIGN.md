@@ -113,14 +113,24 @@ mom's emoji, makes it bigger, and grants a compounding click bonus.
 
 Upgrades are the heart of a clicker. Each one is a joke. Split into two types:
 
-### 6.1 Click upgrades (improve per-click value)
-| # | Name | Effect | Cost (base) |
-|---|------|--------|-------------|
-| 1 | Slap | +1 per click | 15 Mame |
-| 2 | Palmă dublă | +2 per click | 100 Mame |
-| 3 | Papuc | +8 per click | 1,100 Mame |
-| 4 | Roast Legend | +25 per click | 12,000 Mame |
-| 5 | Apel video cu maică-ta | +100 per click | 130,000 Mame |
+### 6.1 Click upgrades (improve per-click value, repeatable)
+
+Click upgrades work like buildings: each purchase adds its `effect` to click
+power, and its cost scales ×1.15 per purchase. Buying more of the same upgrade
+keeps stacking click power forever.
+
+| # | Name | +click / unit | Cost (base) |
+|---|------|--------------:|-------------|
+| 1 | Slap | +1 | 15 Mame |
+| 2 | Palmă dublă | +2 | 100 Mame |
+| 3 | Papuc | +8 | 1,100 Mame |
+| 4 | Roast Legend | +25 | 12,000 Mame |
+| 5 | Apel video cu maică-ta | +100 | 130,000 Mame |
+| 6 | Cureaua | +400 | 1,400,000 Mame |
+| 7 | Bârfă la poartă | +1,600 | 20,000,000 Mame |
+| 8 | Scandal la scară | +6,500 | 330,000,000 Mame |
+| 9 | Maică-ta pe TikTok | +26,000 | 5,000,000,000 Mame |
+| 10 | Apel de la 3 noaptea | +100,000 | 90,000,000,000 Mame |
 
 ### 6.2 Passive upgrades (Mame/sec generators)
 | # | Building | Joke | Mame/sec |
@@ -152,7 +162,7 @@ cosmetic. Suggestions:
 - **Antenna Installed** — give your mom an antenna
 - **One Million Mame** — 1M total Mame earned
 - **Your Mom on TV** — own 25 TV buildings
-- **Legend** — all upgrades purchased
+- **Legend** — own at least one of every click upgrade
 
 ## 8. Rare events (spice)
 

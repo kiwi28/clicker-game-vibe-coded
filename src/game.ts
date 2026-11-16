@@ -5,6 +5,7 @@ import {
 	BUILDINGS,
 	buildingCost,
 	CLICK_UPGRADES,
+	clickUpgradeCost,
 	getBuilding,
 	getClickUpgrade,
 } from "./upgrades";
@@ -34,11 +35,16 @@ export function createInitialState(): GameState {
 			bus: 0,
 		},
 		upgrades: {
-			slap: false,
-			palmadubla: false,
-			papuc: false,
-			roastlegend: false,
-			apelvideo: false,
+			slap: 0,
+			palmadubla: 0,
+			papuc: 0,
+			roastlegend: 0,
+			apelvideo: 0,
+			curea: 0,
+			barfa: 0,
+			scandal: 0,
+			tiktok: 0,
+			apel3: 0,
 		},
 		achievements: [],
 	};
@@ -89,20 +95,26 @@ export function prestige(state: GameState): void {
 	state.upgrades = createInitialState().upgrades;
 }
 
-/** Total click power: 1 base plus the effect of every owned click upgrade. */
+/** Total click power: 1 base plus the per-unit effect of every owned upgrade. */
 export function clickPower(state: GameState): number {
 	let power = BASE_CLICK_POWER;
 	for (const upgrade of CLICK_UPGRADES) {
-		if (state.upgrades[upgrade.id] ?? false) power += upgrade.effect;
+		power += upgrade.effect * (state.upgrades[upgrade.id] ?? 0);
 	}
 	return power;
 }
 
-/** Applies one click: grows kg, applies the fatness stage bonus, adds Mame. */
+/**
+ * Applies one click: the Mame gain is click power × stage bonus, while the kg
+ * gain is derived from click power alone through the single Mame→kg source of
+ * truth. The upgrades multiplier grows kg, but the stage bonus is click
+ * income only and does not increase kg.
+ */
 export function clickMom(state: GameState): number {
-	state.kg += kgFromMame(BASE_CLICK_POWER, state.moms);
 	state.totalClicks += 1;
-	const gain = clickPower(state) * bonusMultiplier(getStage(state.kg).stage);
+	const power = clickPower(state);
+	const gain = power * bonusMultiplier(getStage(state.kg).stage);
+	state.kg += kgFromMame(power, state.moms);
 	state.mame += gain;
 	state.totalEarned += gain;
 	return gain;
@@ -158,13 +170,52 @@ export function buyMaxBuilding(id: BuildingId, state: GameState): void {
 	state.mamePerSec = passivePerSecond(state);
 }
 
-/** Buys a one-time click upgrade if not yet owned and affordable. */
-export function buyClickUpgrade(id: ClickUpgradeId, state: GameState): void {
+/** Cost of the next purchase of `id` given its current owned count. */
+export function nextClickUpgradeCost(id: ClickUpgradeId, state: GameState): number {
 	const upgrade = getClickUpgrade(id);
-	if (state.upgrades[id] ?? false) return;
-	if (state.mame < upgrade.baseCost) return;
-	state.mame -= upgrade.baseCost;
-	state.upgrades[id] = true;
+	return clickUpgradeCost(upgrade, state.upgrades[id] ?? 0);
+}
+
+/** Buys one of `id` if affordable. */
+export function buyClickUpgrade(id: ClickUpgradeId, state: GameState): void {
+	const cost = nextClickUpgradeCost(id, state);
+	if (state.mame < cost) return;
+	const owned = state.upgrades[id] ?? 0;
+	state.mame -= cost;
+	state.upgrades[id] = owned + 1;
+}
+
+/**
+ * How many of `id` can currently be bought with the Mame on hand. Mirrors the
+ * buying loop in `buyMaxClickUpgrade` so the displayed count is truthful.
+ */
+export function maxAffordableClickUpgrade(
+	id: ClickUpgradeId,
+	state: GameState,
+): number {
+	const upgrade = getClickUpgrade(id);
+	let owned = state.upgrades[id] ?? 0;
+	let remaining = state.mame;
+	let count = 0;
+	while (remaining >= clickUpgradeCost(upgrade, owned)) {
+		remaining -= clickUpgradeCost(upgrade, owned);
+		owned += 1;
+		count += 1;
+	}
+	return count;
+}
+
+/** Buys as many of `id` as affordable with the current currency. */
+export function buyMaxClickUpgrade(id: ClickUpgradeId, state: GameState): void {
+	const upgrade = getClickUpgrade(id);
+	const bought = maxAffordableClickUpgrade(id, state);
+	if (bought === 0) return;
+	let owned = state.upgrades[id] ?? 0;
+	for (let i = 0; i < bought; i += 1) {
+		state.mame -= clickUpgradeCost(upgrade, owned);
+		owned += 1;
+	}
+	state.upgrades[id] = owned;
 }
 
 /** Sum of all buildings' Mame income. */

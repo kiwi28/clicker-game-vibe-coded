@@ -16,7 +16,7 @@ function ownsAnyBuilding(state: GameState): boolean {
 }
 
 function ownsAllClickUpgrades(state: GameState): boolean {
-	return CLICK_UPGRADES.every((upgrade) => state.upgrades[upgrade.id] ?? false);
+	return CLICK_UPGRADES.every((upgrade) => (state.upgrades[upgrade.id] ?? 0) > 0);
 }
 
 export const ACHIEVEMENTS: readonly AchievementDef[] = [
@@ -86,7 +86,7 @@ export const ACHIEVEMENTS: readonly AchievementDef[] = [
 	{
 		id: "legend",
 		name: "Legend",
-		description: "Buy every click upgrade",
+		description: "Own at least one of every click upgrade",
 		icon: "👑",
 		isUnlocked: ownsAllClickUpgrades,
 	},

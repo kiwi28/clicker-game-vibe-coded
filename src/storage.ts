@@ -93,19 +93,27 @@ function parseGameState(value: unknown): GameState | null {
 	}
 
 	const upgradesRaw = value.upgrades;
-	const upgrades: Record<ClickUpgradeId, boolean> = {
-		slap: false,
-		palmadubla: false,
-		papuc: false,
-		roastlegend: false,
-		apelvideo: false,
+	const upgrades: Record<ClickUpgradeId, number> = {
+		slap: 0,
+		palmadubla: 0,
+		papuc: 0,
+		roastlegend: 0,
+		apelvideo: 0,
+		curea: 0,
+		barfa: 0,
+		scandal: 0,
+		tiktok: 0,
+		apel3: 0,
 	};
 	if (upgradesRaw !== undefined) {
 		if (!isRecord(upgradesRaw)) return null;
 		for (const upgrade of CLICK_UPGRADES) {
 			const owned = upgradesRaw[upgrade.id];
-			if (typeof owned === "boolean") {
+			if (isFiniteNumber(owned)) {
 				upgrades[upgrade.id] = owned;
+			} else if (typeof owned === "boolean") {
+				// Legacy one-time saves: owned → 1, not owned → 0.
+				upgrades[upgrade.id] = owned ? 1 : 0;
 			} else if (owned !== undefined) {
 				return null;
 			}

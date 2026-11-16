@@ -170,6 +170,21 @@ body {
   min-width: 0;
 }
 
+.menu__item--volume {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.menu__item--volume input[type='range'] {
+  flex: 1;
+  min-width: 0;
+  height: 18px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
 .modal {
   position: fixed;
   inset: 0;
@@ -861,11 +876,6 @@ body {
   color: var(--text);
 }
 
-.upgrade.is-owned {
-  border-color: var(--good);
-  opacity: 0.85;
-}
-
 .upgrade__title {
   display: flex;
   align-items: center;
@@ -891,6 +901,12 @@ body {
   font-weight: 700;
 }
 
+.upgrade__owned {
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .upgrade__effect {
   font-size: 12px;
   font-weight: 700;
@@ -911,10 +927,24 @@ body {
 }
 
 .upgrade__buy {
-  padding: 8px 16px;
+  background: var(--buy);
+}
+
+.upgrade__buymax {
+  background: var(--buy-max);
+}
+
+.upgrade__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.upgrade__actions button {
+  flex: 1;
+  padding: 8px 10px;
   border: none;
   border-radius: 8px;
-  background: var(--buy);
   color: #0c1410;
   font-family: inherit;
   font-size: 13px;
@@ -924,20 +954,21 @@ body {
   transition: filter 0.12s ease, transform 0.12s ease;
 }
 
-.upgrade__buy:hover:not(:disabled) {
+.upgrade__actions button:hover:not(:disabled) {
   filter: brightness(1.12);
+  transform: translateY(-1px);
 }
 
-.upgrade__buy:active:not(:disabled) {
+.upgrade__actions button:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-.upgrade__buy:disabled {
+.upgrade__actions button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 
-.upgrade__buy:focus-visible {
+.upgrade__actions button:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }

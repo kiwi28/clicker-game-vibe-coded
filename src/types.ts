@@ -15,7 +15,12 @@ export type ClickUpgradeId =
 	| "palmadubla"
 	| "papuc"
 	| "roastlegend"
-	| "apelvideo";
+	| "apelvideo"
+	| "curea"
+	| "barfa"
+	| "scandal"
+	| "tiktok"
+	| "apel3";
 
 export type AchievementId =
 	| "firstClick"
@@ -45,9 +50,10 @@ export interface ClickUpgrade {
 	name: string;
 	icon: string;
 	color: string;
-	/** Added to click power once owned. */
+	/** Click power added per unit owned. */
 	effect: number;
 	baseCost: number;
+	costMultiplier: number;
 }
 
 export interface Achievement {
@@ -68,6 +74,6 @@ export interface GameState {
 	/** Lifetime clicks on the mom. */
 	totalClicks: number;
 	buildings: Record<BuildingId, number>;
-	upgrades: Record<ClickUpgradeId, boolean>;
+	upgrades: Record<ClickUpgradeId, number>;
 	achievements: AchievementId[];
 }

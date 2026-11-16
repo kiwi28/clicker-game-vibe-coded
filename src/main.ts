@@ -1,5 +1,6 @@
 import "./style.css";
 import { checkAchievements, getAchievement } from "./achievements";
+import * as audio from "./audio";
 import { isLastStageComplete } from "./fatness";
 import { clickMom, createInitialState, passivePerSecond, prestige, resetState, tick } from "./game";
 import {
@@ -72,6 +73,7 @@ const state = loadGameState() ?? createInitialState();
 state.mamePerSec = passivePerSecond(state);
 const els = ui.init(state);
 ui.render(els, state);
+audio.initAudio();
 
 if (isLoaderDisabled()) {
 	loaderEl?.remove();
@@ -83,6 +85,36 @@ function resetGame(): void {
 	clearSave();
 	resetState(state);
 	ui.render(els, state);
+}
+
+/** Wires the sound toggle + music/click volume sliders to the audio module. */
+function setupAudioSettings(): void {
+	const soundToggle = document.getElementById("sound-toggle") as HTMLInputElement | null;
+	const musicSlider = document.getElementById("music-volume") as HTMLInputElement | null;
+	const clickSlider = document.getElementById("click-volume") as HTMLInputElement | null;
+
+	if (soundToggle !== null) {
+		soundToggle.checked = !audio.isMuted();
+		soundToggle.addEventListener("change", () => {
+			audio.setMuted(!soundToggle.checked);
+		});
+	}
+
+	if (musicSlider !== null) {
+		musicSlider.value = audio.getMusicVolume().toString();
+		musicSlider.addEventListener("input", () => {
+			const value = Number(musicSlider.value);
+			audio.setMusicVolume(Number.isFinite(value) ? value : 0);
+		});
+	}
+
+	if (clickSlider !== null) {
+		clickSlider.value = audio.getClickVolume().toString();
+		clickSlider.addEventListener("input", () => {
+			const value = Number(clickSlider.value);
+			audio.setClickVolume(Number.isFinite(value) ? value : 0);
+		});
+	}
 }
 
 /**
@@ -122,11 +154,15 @@ const openDevModal = ui.setupDevMenu({
 });
 
 ui.setupMenu(resetGame, openDevModal);
+setupAudioSettings();
 
 let clickCount = 0;
 
 els.momCluster.addEventListener("click", () => {
 	if (ui.isExploding()) return;
+	// First click unlocks audio + fades music in; every click plays the click
+	// sound and keeps the music alive (it fades out after 5s idle).
+	audio.onClick();
 	clickCount += 1;
 	const gain = clickMom(state);
 	monitorPrestige();

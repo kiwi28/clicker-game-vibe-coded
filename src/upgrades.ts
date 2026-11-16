@@ -115,8 +115,10 @@ export function buildingCost(building: Building, owned: number): number {
 }
 
 /**
- * Click upgrades (one-time purchases that raise click power). Base costs follow
- * the §6.1 progression and are trivial to retune here.
+ * Click upgrades (repeatable purchases that raise click power per unit owned).
+ * They work exactly like buildings — cost scales ×1.15 per purchase — but their
+ * `effect` is added to click power instead of passive Mame/sec. Base costs
+ * follow the §6.1 progression and are trivial to retune here.
  */
 export const CLICK_UPGRADES: readonly ClickUpgrade[] = [
 	{
@@ -126,6 +128,7 @@ export const CLICK_UPGRADES: readonly ClickUpgrade[] = [
 		color: CLICK_UPGRADE_ICONS.slap.color,
 		effect: 1,
 		baseCost: 15,
+		costMultiplier: COST_MULTIPLIER,
 	},
 	{
 		id: "palmadubla",
@@ -134,6 +137,7 @@ export const CLICK_UPGRADES: readonly ClickUpgrade[] = [
 		color: CLICK_UPGRADE_ICONS.palmadubla.color,
 		effect: 2,
 		baseCost: 100,
+		costMultiplier: COST_MULTIPLIER,
 	},
 	{
 		id: "papuc",
@@ -142,6 +146,7 @@ export const CLICK_UPGRADES: readonly ClickUpgrade[] = [
 		color: CLICK_UPGRADE_ICONS.papuc.color,
 		effect: 8,
 		baseCost: 1_100,
+		costMultiplier: COST_MULTIPLIER,
 	},
 	{
 		id: "roastlegend",
@@ -150,6 +155,7 @@ export const CLICK_UPGRADES: readonly ClickUpgrade[] = [
 		color: CLICK_UPGRADE_ICONS.roastlegend.color,
 		effect: 25,
 		baseCost: 12_000,
+		costMultiplier: COST_MULTIPLIER,
 	},
 	{
 		id: "apelvideo",
@@ -158,6 +164,52 @@ export const CLICK_UPGRADES: readonly ClickUpgrade[] = [
 		color: CLICK_UPGRADE_ICONS.apelvideo.color,
 		effect: 100,
 		baseCost: 130_000,
+		costMultiplier: COST_MULTIPLIER,
+	},
+	{
+		id: "curea",
+		name: "Cureaua",
+		icon: CLICK_UPGRADE_ICONS.curea.svg,
+		color: CLICK_UPGRADE_ICONS.curea.color,
+		effect: 400,
+		baseCost: 1_400_000,
+		costMultiplier: COST_MULTIPLIER,
+	},
+	{
+		id: "barfa",
+		name: "Bârfă la poartă",
+		icon: CLICK_UPGRADE_ICONS.barfa.svg,
+		color: CLICK_UPGRADE_ICONS.barfa.color,
+		effect: 1_600,
+		baseCost: 20_000_000,
+		costMultiplier: COST_MULTIPLIER,
+	},
+	{
+		id: "scandal",
+		name: "Scandal la scară",
+		icon: CLICK_UPGRADE_ICONS.scandal.svg,
+		color: CLICK_UPGRADE_ICONS.scandal.color,
+		effect: 6_500,
+		baseCost: 330_000_000,
+		costMultiplier: COST_MULTIPLIER,
+	},
+	{
+		id: "tiktok",
+		name: "Maică-ta pe TikTok",
+		icon: CLICK_UPGRADE_ICONS.tiktok.svg,
+		color: CLICK_UPGRADE_ICONS.tiktok.color,
+		effect: 26_000,
+		baseCost: 5_000_000_000,
+		costMultiplier: COST_MULTIPLIER,
+	},
+	{
+		id: "apel3",
+		name: "Apel de la 3 noaptea",
+		icon: CLICK_UPGRADE_ICONS.apel3.svg,
+		color: CLICK_UPGRADE_ICONS.apel3.color,
+		effect: 100_000,
+		baseCost: 90_000_000_000,
+		costMultiplier: COST_MULTIPLIER,
 	},
 ];
 
@@ -166,4 +218,9 @@ export function getClickUpgrade(id: ClickUpgradeId): ClickUpgrade {
 	const upgrade = CLICK_UPGRADES.find((candidate) => candidate.id === id);
 	if (upgrade === undefined) throw new Error(`Unknown click upgrade: ${id}`);
 	return upgrade;
+}
+
+/** Cost of the next purchase: `baseCost × costMultiplier^owned`. */
+export function clickUpgradeCost(upgrade: ClickUpgrade, owned: number): number {
+	return Math.floor(upgrade.baseCost * upgrade.costMultiplier ** owned);
 }

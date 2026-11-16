@@ -7,8 +7,11 @@ import {
 	buyBuilding,
 	buyClickUpgrade,
 	buyMaxBuilding,
+	buyMaxClickUpgrade,
 	kgFromMame,
 	maxAffordable,
+	maxAffordableClickUpgrade,
+	nextClickUpgradeCost,
 	nextCost,
 } from "./game";
 import { applyClickZonePattern } from "./pattern";
@@ -101,6 +104,8 @@ interface BuildingView {
 interface UpgradeView {
 	row: HTMLElement;
 	buy: HTMLButtonElement;
+	buyMax: HTMLButtonElement;
+	owned: HTMLElement;
 	cost: HTMLElement;
 }
 
@@ -531,17 +536,25 @@ function buildUpgradeList(els: Elements, state: GameState): void {
 		name.className = "upgrade__name";
 		name.textContent = upgrade.name;
 
-		title.append(icon, name);
+		const owned = document.createElement("span");
+		owned.className = "upgrade__owned";
 
-		const effect = document.createElement("span");
-		effect.className = "upgrade__effect";
-		effect.textContent = `+${upgrade.effect} per click`;
+		title.append(icon, name, owned);
 
 		const bottom = document.createElement("span");
 		bottom.className = "upgrade__row";
 
+		const effect = document.createElement("span");
+		effect.className = "upgrade__effect";
+		effect.textContent = `+${upgrade.effect} per click each`;
+
 		const cost = document.createElement("span");
 		cost.className = "upgrade__cost";
+
+		bottom.append(effect, cost);
+
+		const actions = document.createElement("span");
+		actions.className = "upgrade__actions";
 
 		const buy = document.createElement("button");
 		buy.type = "button";
@@ -553,10 +566,20 @@ function buildUpgradeList(els: Elements, state: GameState): void {
 			render(els, state);
 		});
 
-		bottom.append(cost, buy);
-		row.append(title, effect, bottom);
+		const buyMax = document.createElement("button");
+		buyMax.type = "button";
+		buyMax.className = "upgrade__buymax";
+		buyMax.textContent = "Buy Max";
+		buyMax.disabled = true;
+		buyMax.addEventListener("click", () => {
+			buyMaxClickUpgrade(upgrade.id, state);
+			render(els, state);
+		});
+
+		actions.append(buy, buyMax);
+		row.append(title, bottom, actions);
 		els.upgradeList.appendChild(row);
-		upgradeViews.set(upgrade.id, { row, buy, cost });
+		upgradeViews.set(upgrade.id, { row, buy, buyMax, owned, cost });
 	}
 }
 
@@ -564,17 +587,15 @@ function renderUpgrades(state: GameState): void {
 	for (const upgrade of CLICK_UPGRADES) {
 		const view = upgradeViews.get(upgrade.id);
 		if (view === undefined) continue;
-		const owned = state.upgrades[upgrade.id] ?? false;
-		view.row.classList.toggle("is-owned", owned);
-		if (owned) {
-			view.cost.textContent = "Owned";
-			view.buy.textContent = "✓";
-			view.buy.disabled = true;
-		} else {
-			view.cost.textContent = `${formatNumber(upgrade.baseCost)} Mame`;
-			view.buy.textContent = "Buy";
-			view.buy.disabled = state.mame < upgrade.baseCost;
-		}
+		const owned = state.upgrades[upgrade.id] ?? 0;
+		const cost = nextClickUpgradeCost(upgrade.id, state);
+		view.owned.textContent = `×${owned}`;
+		view.cost.textContent = `${formatNumber(cost)} Mame`;
+		view.buy.disabled = state.mame < cost;
+		view.buyMax.disabled = state.mame < cost;
+		const affordable = maxAffordableClickUpgrade(upgrade.id, state);
+		view.buyMax.textContent =
+			affordable > 0 ? `Buy Max (${affordable})` : "Buy Max";
 	}
 }
 

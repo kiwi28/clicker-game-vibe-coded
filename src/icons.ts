@@ -14,6 +14,11 @@ import satelliteIcon from "@tabler/icons/filled/satellite.svg?raw";
 import busIcon from "@tabler/icons/filled/bus.svg?raw";
 import flameIcon from "@tabler/icons/filled/flame.svg?raw";
 import videoIcon from "@tabler/icons/filled/video.svg?raw";
+import moodAngryIcon from "@tabler/icons/filled/mood-angry.svg?raw";
+import messagesIcon from "@tabler/icons/filled/messages.svg?raw";
+import bellRingingIcon from "@tabler/icons/filled/bell-ringing.svg?raw";
+import brandTiktokIcon from "@tabler/icons/filled/brand-tiktok.svg?raw";
+import phoneCallingIcon from "@tabler/icons/filled/phone-calling.svg?raw";
 import handFingerIcon from "@tabler/icons/outline/hand-finger.svg?raw";
 import handTwoFingersIcon from "@tabler/icons/outline/hand-two-fingers.svg?raw";
 import shoeIcon from "@tabler/icons/outline/shoe.svg?raw";
@@ -42,4 +47,9 @@ export const CLICK_UPGRADE_ICONS: Record<ClickUpgradeId, IconDef> = {
 	papuc: { svg: shoeIcon, color: "#ffa726" },
 	roastlegend: { svg: flameIcon, color: "#f5c542" },
 	apelvideo: { svg: videoIcon, color: "#42a5f5" },
+	curea: { svg: moodAngryIcon, color: "#8d6e63" },
+	barfa: { svg: messagesIcon, color: "#ab47bc" },
+	scandal: { svg: bellRingingIcon, color: "#ff7043" },
+	tiktok: { svg: brandTiktokIcon, color: "#26c6da" },
+	apel3: { svg: phoneCallingIcon, color: "#66bb6a" },
 };
