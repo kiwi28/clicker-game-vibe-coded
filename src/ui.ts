@@ -334,11 +334,144 @@ function formatGain(value: number): string {
 	return Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(1);
 }
 
+/** The subset of `GameState` the dev panel edits (mame/sec is recomputed). */
+export interface DevState {
+	mame: number;
+	kg: number;
+	moms: number;
+	buildings: Record<BuildingId, number>;
+}
+
+type DevFieldKey = "mame" | "kg" | "moms" | BuildingId;
+
+interface DevField {
+	key: DevFieldKey;
+	input: HTMLInputElement;
+}
+
+function isDevEnabled(): boolean {
+	try {
+		return localStorage.getItem("isDev") === "true";
+	} catch {
+		return false;
+	}
+}
+
+function buildDevFields(container: HTMLElement): DevField[] {
+	const fields: DevField[] = [];
+
+	const add = (key: DevFieldKey, label: string): void => {
+		const row = document.createElement("label");
+		row.className = "dev-field";
+
+		const text = document.createElement("span");
+		text.className = "dev-field__label";
+		text.textContent = label;
+
+		const input = document.createElement("input");
+		input.className = "dev-field__input";
+		input.type = "number";
+		input.inputMode = "decimal";
+
+		row.append(text, input);
+		container.appendChild(row);
+		fields.push({ key, input });
+	};
+
+	add("mame", "Mame");
+	add("kg", "kg");
+	add("moms", "Moms");
+	for (const building of BUILDINGS) {
+		add(building.id, building.name);
+	}
+	return fields;
+}
+
+function fillDevFields(fields: readonly DevField[], state: DevState): void {
+	for (const field of fields) {
+		if (field.key === "mame") field.input.value = state.mame.toString();
+		else if (field.key === "kg") field.input.value = state.kg.toString();
+		else if (field.key === "moms") field.input.value = state.moms.toString();
+		else field.input.value = (state.buildings[field.key] ?? 0).toString();
+	}
+}
+
+function readDevFields(fields: readonly DevField[]): DevState {
+	let mame = 0;
+	let kg = 0;
+	let moms = 1;
+	const buildings: Record<BuildingId, number> = {
+		gym: 0,
+		bingo: 0,
+		market: 0,
+		tv: 0,
+		lift: 0,
+		olx: 0,
+		antenna: 0,
+		bus: 0,
+	};
+
+	for (const field of fields) {
+		const raw = Number(field.input.value);
+		const value = Number.isFinite(raw) ? raw : 0;
+		if (field.key === "mame") mame = value;
+		else if (field.key === "kg") kg = value;
+		else if (field.key === "moms") moms = Math.max(1, Math.floor(value));
+		else buildings[field.key] = Math.max(0, Math.floor(value));
+	}
+
+	return { mame, kg, moms, buildings };
+}
+
+/**
+ * Builds the dev panel and returns a function that opens it (populating the
+ * fields from the current state).
+ */
+export function setupDevMenu(handlers: {
+	read: () => DevState;
+	apply: (next: DevState) => void;
+}): () => void {
+	const modal = byId("dev-modal");
+	const fieldsContainer = byId("dev-fields");
+	const applyButton = byId("dev-apply") as HTMLButtonElement;
+	const closeButton = byId("dev-close");
+
+	const fields = buildDevFields(fieldsContainer);
+
+	const closeModal = (): void => {
+		modal.hidden = true;
+	};
+
+	const openModal = (): void => {
+		fillDevFields(fields, handlers.read());
+		modal.hidden = false;
+		fields[0]?.input.focus();
+	};
+
+	applyButton.addEventListener("click", () => {
+		handlers.apply(readDevFields(fields));
+		closeModal();
+	});
+
+	closeButton.addEventListener("click", closeModal);
+
+	modal.addEventListener("click", (event) => {
+		if (event.target === modal) closeModal();
+	});
+
+	document.addEventListener("keydown", (event) => {
+		if (event.key === "Escape" && !modal.hidden) closeModal();
+	});
+
+	return openModal;
+}
+
 /** Wires the header menu (open/close) and the reset confirmation modal. */
-export function setupMenu(onReset: () => void): void {
+export function setupMenu(onReset: () => void, onOpenDev: () => void): void {
 	const button = byId("menu-button");
 	const menu = byId("menu");
 	const resetItem = byId("reset-game");
+	const devItem = byId("dev-menu");
 	const modal = byId("reset-modal");
 	const confirmYes = byId("reset-yes");
 	const confirmNo = byId("reset-no");
@@ -351,6 +484,7 @@ export function setupMenu(onReset: () => void): void {
 
 	const openMenu = (): void => {
 		menu.hidden = false;
+		devItem.hidden = !isDevEnabled();
 		button.setAttribute("aria-expanded", "true");
 		button.classList.add("is-open");
 	};
@@ -372,6 +506,11 @@ export function setupMenu(onReset: () => void): void {
 	resetItem.addEventListener("click", () => {
 		closeMenu();
 		openModal();
+	});
+
+	devItem.addEventListener("click", () => {
+		closeMenu();
+		onOpenDev();
 	});
 
 	confirmYes.addEventListener("click", () => {

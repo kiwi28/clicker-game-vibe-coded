@@ -30,7 +30,25 @@ function monitorPrestige(): void {
 	}
 }
 
-ui.setupMenu(resetGame);
+const openDevModal = ui.setupDevMenu({
+	read: () => ({
+		mame: state.mame,
+		kg: state.kg,
+		moms: state.moms,
+		buildings: state.buildings,
+	}),
+	apply: (next) => {
+		state.mame = next.mame;
+		state.kg = next.kg;
+		state.moms = next.moms;
+		state.buildings = next.buildings;
+		state.mamePerSec = passivePerSecond(state);
+		saveGameState(state);
+		ui.render(els, state);
+	},
+});
+
+ui.setupMenu(resetGame, openDevModal);
 
 let clickCount = 0;
 
