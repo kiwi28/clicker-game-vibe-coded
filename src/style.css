@@ -48,7 +48,7 @@ body {
 
 .hud__stats {
   display: flex;
-  gap: 64px;
+  gap: 32px;
   flex: 1;
   justify-content: center;
 }
@@ -59,7 +59,7 @@ body {
   gap: 6px;
   text-align: center;
   flex: 1;
-  max-width: 160px;
+  min-width: 80px;
 }
 
 .stat__label {
@@ -535,6 +535,13 @@ body {
   }
   .hud {
     grid-area: hud;
+  }
+  .hud__stats {
+    gap: 64px;
+  }
+  .stat {
+    min-width: 0;
+    max-width: 160px;
   }
   .click-zone {
     grid-area: click;
