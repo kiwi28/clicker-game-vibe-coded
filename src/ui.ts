@@ -56,6 +56,23 @@ const PIZZA_DURATION_MS = 800;
 /** Inset (px) from the click-zone edge so a slice isn't half-clipped at spawn. */
 const EDGE_INSET = 24;
 
+/** Emoji shown briefly when the fatness stage changes. */
+const EXPLOSION_EMOJI = "💥";
+/** How long the explosion emoji replaces the mom during a stage transition. */
+const EXPLOSION_DURATION_MS = 1000;
+/** `scaleFactor` caps at 2× — the mom's size at the very end of a stage. */
+const EXPLOSION_SCALE = 2;
+
+/** Stage number last rendered; used to detect stage transitions. */
+let currentStage: number | null = null;
+/** Timestamp (ms) until which the explosion emoji replaces the mom. */
+let explosionUntil = 0;
+
+/** True while the stage-transition explosion is still showing. */
+function isExploding(): boolean {
+	return performance.now() < explosionUntil;
+}
+
 export interface Elements {
 	mame: HTMLElement;
 	mps: HTMLElement;
@@ -152,11 +169,18 @@ function renderHud(els: Elements, state: GameState): void {
 	const stage = getStage(state.kg);
 	const bonus = bonusMultiplier(stage.stage);
 
+	// On a stage change, show an explosion emoji for a beat before revealing
+	// the new stage's emoji.
+	if (currentStage !== null && stage.stage !== currentStage) {
+		explosionUntil = performance.now() + EXPLOSION_DURATION_MS;
+	}
+	currentStage = stage.stage;
+
 	els.mame.textContent = formatMame(state.mame);
 	els.mps.textContent = formatNumber(state.mamePerSec);
 	els.kg.textContent = formatKg(state.kg);
 
-	els.momEmoji.textContent = stage.emoji;
+	els.momEmoji.textContent = isExploding() ? EXPLOSION_EMOJI : stage.emoji;
 	els.stageLabel.textContent =
 		state.moms > 1 ? `${stage.title} x${state.moms}` : stage.title;
 	els.stageBonus.textContent = `+${Math.round((bonus - 1) * 100)}% MAME / click`;
@@ -345,9 +369,11 @@ function renderMoms(els: Elements, state: GameState): void {
 	}
 
 	// Combined cluster scale: shrink by mom count, cap to the grid's fit, then
-	// apply the per-mom fatness growth.
+	// apply the per-mom fatness growth. During a stage transition the explosion
+	// emoji shows at the biggest size the stage reaches (2×).
+	const growth = isExploding() ? EXPLOSION_SCALE : scaleFactor(state.kg);
 	momClusterScale =
-		Math.min(momFitScale, momCountScale(visible)) * scaleFactor(state.kg);
+		Math.min(momFitScale, momCountScale(visible)) * growth;
 	els.momCluster.style.transform = `scale(${momClusterScale.toString()})`;
 
 	// Mirror the current stage's emoji on every extra icon.
