@@ -32,14 +32,18 @@ import type {
 
 const ROASTS: readonly string[] = [
 	"maică-ta",
-	"da' ce zici mă",
-	"câte kg?",
+	"da' ce zici mă?",
+	"câte kg!?",
 	"stai că sunt pe maică-ta",
 	"ma sugi de PL",
 	"CINE ?!",
 	"HEALTH, only balls!",
 	"lasă-l mă să își facă hambâțul",
 	"mi-l sugi ?",
+	"Scândurăăăă! Te cheamă mă-ta!",
+	"ți-l sug",
+	"dalbayob",
+	"suka",
 ];
 
 const SPAWN_PADDING = 100;
@@ -377,8 +381,7 @@ function renderMoms(els: Elements, state: GameState): void {
 	// apply the per-mom fatness growth. During a stage transition the explosion
 	// emoji shows at the biggest size the stage reaches (2×).
 	const growth = isExploding() ? EXPLOSION_SCALE : scaleFactor(state.kg);
-	momClusterScale =
-		Math.min(momFitScale, momCountScale(visible)) * growth;
+	momClusterScale = Math.min(momFitScale, momCountScale(visible)) * growth;
 	els.momCluster.style.transform = `scale(${momClusterScale.toString()})`;
 
 	// Mirror the current stage's emoji on every extra icon.
