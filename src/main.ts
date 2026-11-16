@@ -15,12 +15,17 @@ const ROASTS: readonly string[] = [
 ];
 
 const BASE_CLICK_POWER = 1;
+const SPAWN_PADDING = 100;
+const SPAWN_PADDING_BOTTOM = 200;
+const MIN_GAP = 160;
 
 const state: GameState = {
   mame: 0,
   mamePerSec: 0,
   kg: 0,
 };
+
+let clickCount = 0;
 
 function byId(id: string): HTMLElement {
   const element = document.getElementById(id);
@@ -35,6 +40,7 @@ const mom = byId('mom');
 const momEmoji = byId('mom-emoji');
 const stageLabel = byId('stage-label');
 const stageBonus = byId('stage-bonus');
+const clickZone = byId('click-zone');
 
 function formatGain(value: number): string {
   const rounded = Math.round(value * 10) / 10;
@@ -55,18 +61,45 @@ function render(): void {
   stageBonus.textContent = `+${Math.round((bonus - 1) * 100)}% click`;
 }
 
-function spawnFloat(parent: HTMLElement, text: string, kind: 'roast' | 'gain'): void {
+interface FloatPoint {
+  left: number;
+  top: number;
+}
+
+function pickPosition(parent: HTMLElement, avoid: FloatPoint | null): FloatPoint {
+  const width = parent.clientWidth;
+  const height = parent.clientHeight;
+  const minX = SPAWN_PADDING;
+  const maxX = Math.max(width - SPAWN_PADDING, minX);
+  const minY = SPAWN_PADDING;
+  const maxY = Math.max(height - SPAWN_PADDING_BOTTOM, minY);
+
+  let point: FloatPoint = { left: minX, top: minY };
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    point = {
+      left: minX + Math.random() * (maxX - minX),
+      top: minY + Math.random() * (maxY - minY),
+    };
+    if (avoid === null || Math.hypot(point.left - avoid.left, point.top - avoid.top) >= MIN_GAP) {
+      break;
+    }
+  }
+  return point;
+}
+
+function spawnFloat(parent: HTMLElement, text: string, kind: 'roast' | 'gain', at: FloatPoint): void {
   const element = document.createElement('span');
   element.className = kind === 'roast' ? 'float float--roast' : 'float float--gain';
   element.textContent = text;
-  element.style.left = `${(40 + Math.random() * 40).toString()}%`;
+  element.style.left = `${at.left.toString()}px`;
+  element.style.top = `${at.top.toString()}px`;
   parent.appendChild(element);
   element.addEventListener('animationend', () => element.remove());
 }
 
-function spawnRoast(parent: HTMLElement): void {
+function spawnRoast(parent: HTMLElement, at: FloatPoint): void {
   const text = ROASTS[Math.floor(Math.random() * ROASTS.length)] ?? 'maică-ta';
-  spawnFloat(parent, text, 'roast');
+  spawnFloat(parent, text, 'roast', at);
 }
 
 function setupTabs(): void {
@@ -84,12 +117,17 @@ function setupTabs(): void {
 }
 
 mom.addEventListener('click', () => {
+  clickCount += 1;
   state.kg += 1;
   const stage = getStage(state.kg);
   const gain = BASE_CLICK_POWER * bonusMultiplier(stage.stage);
   state.mame += gain;
-  spawnRoast(mom);
-  spawnFloat(mom, `+${formatGain(gain)} Mame`, 'gain');
+
+  const gainPosition = pickPosition(clickZone, null);
+  if (clickCount % 3 === 0) {
+    spawnRoast(clickZone, pickPosition(clickZone, gainPosition));
+  }
+  spawnFloat(clickZone, `+${formatGain(gain)} Mame`, 'gain', gainPosition);
   render();
 });
 
