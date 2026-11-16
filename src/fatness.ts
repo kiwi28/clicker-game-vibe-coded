@@ -38,6 +38,31 @@ export function getStage(kg: number): FatnessStage {
 	return current;
 }
 
+/** How much the final stage's minKg grows to reach its end (1× → 2× scale). */
+const LAST_STAGE_GROWTH = 2;
+
+/** The final fatness stage (a non-empty list is always safe to index). */
+export const LAST_STAGE: FatnessStage =
+	FATNESS_STAGES[FATNESS_STAGES.length - 1] ?? FATNESS_STAGES[0];
+
+/**
+ * The kg at which a stage is considered complete: the next stage's minKg, or,
+ * for the final stage, its minKg scaled by `LAST_STAGE_GROWTH`.
+ */
+export function stageEndKg(stage: FatnessStage): number {
+	const next = FATNESS_STAGES[stage.stage + 1];
+	if (next !== undefined) return next.minKg;
+	return stage.minKg * LAST_STAGE_GROWTH;
+}
+
+/** The kg threshold that completes the final stage (the prestige trigger). */
+export const LAST_STAGE_END_KG: number = stageEndKg(LAST_STAGE);
+
+/** True once `kg` has reached the end of the final stage. */
+export function isLastStageComplete(kg: number): boolean {
+	return kg >= LAST_STAGE_END_KG;
+}
+
 /** Compounding click-income multiplier for a stage: 1.15^stage. */
 export function bonusMultiplier(stage: number): number {
 	return (1 + BONUS_PER_STAGE) ** stage;
@@ -45,13 +70,13 @@ export function bonusMultiplier(stage: number): number {
 
 /**
  * Emoji size multiplier. Grows 1× → 2× as `kg` progresses through the current
- * stage, resetting back to 1× when the next stage begins.
+ * stage, resetting back to 1× when the next stage begins. The final stage
+ * grows 1× → 2× up to `LAST_STAGE_END_KG`.
  */
 export function scaleFactor(kg: number): number {
 	const stage = getStage(kg);
-	const next = FATNESS_STAGES[stage.stage + 1];
-	if (next === undefined) return 2;
-	const span = next.minKg - stage.minKg;
+	const end = stageEndKg(stage);
+	const span = end - stage.minKg;
 	if (span <= 0) return 1;
 	const progress = Math.min(Math.max((kg - stage.minKg) / span, 0), 1);
 	return 1 + progress;

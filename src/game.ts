@@ -11,6 +11,7 @@ export function createInitialState(): GameState {
 		mame: 0,
 		mamePerSec: 0,
 		kg: 0,
+		moms: 1,
 		buildings: {
 			gym: 0,
 			bingo: 0,
@@ -30,12 +31,34 @@ export function resetState(state: GameState): void {
 	state.mame = fresh.mame;
 	state.mamePerSec = fresh.mamePerSec;
 	state.kg = fresh.kg;
+	state.moms = fresh.moms;
 	state.buildings = fresh.buildings;
+}
+
+/**
+ * Progress rate for fatness. Each extra mom halves how fast `kg` grows
+ * (`2^(1 − moms)`), so every prestige makes the whole climb twice as slow.
+ */
+export function progressRate(state: GameState): number {
+	return 2 ** (1 - state.moms);
+}
+
+/**
+ * Reaches the end of the final stage: adds a mom and resets all progress
+ * (kg, Mame, passive income, buildings) while keeping the growing mom count,
+ * so the game is endless.
+ */
+export function prestige(state: GameState): void {
+	state.moms += 1;
+	state.kg = 0;
+	state.mame = 0;
+	state.mamePerSec = 0;
+	state.buildings = createInitialState().buildings;
 }
 
 /** Applies one click: grows kg, applies the fatness stage bonus, adds Mame. */
 export function clickMom(state: GameState): number {
-	state.kg += 1;
+	state.kg += progressRate(state);
 	const gain = BASE_CLICK_POWER * bonusMultiplier(getStage(state.kg).stage);
 	state.mame += gain;
 	return gain;

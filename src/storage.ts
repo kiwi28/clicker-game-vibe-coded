@@ -29,6 +29,21 @@ function parseGameState(value: unknown): GameState | null {
 	if (!isFiniteNumber(kg)) return null;
 	if (!isRecord(buildingsRaw)) return null;
 
+	const momsRaw = value.moms;
+	let moms: number;
+	if (momsRaw === undefined) {
+		// Legacy saves predate the prestige mechanic; start with a single mom.
+		moms = 1;
+	} else if (
+		isFiniteNumber(momsRaw) &&
+		Number.isInteger(momsRaw) &&
+		momsRaw >= 1
+	) {
+		moms = momsRaw;
+	} else {
+		return null;
+	}
+
 	const buildings: Record<BuildingId, number> = {
 		gym: 0,
 		bingo: 0,
@@ -48,7 +63,7 @@ function parseGameState(value: unknown): GameState | null {
 		}
 	}
 
-	return { mame, mamePerSec, kg, buildings };
+	return { mame, mamePerSec, kg, moms, buildings };
 }
 
 export function loadGameState(): GameState | null {

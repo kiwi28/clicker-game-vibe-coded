@@ -1,5 +1,6 @@
 import "./style.css";
-import { clickMom, createInitialState, passivePerSecond, resetState, tick } from "./game";
+import { isLastStageComplete } from "./fatness";
+import { clickMom, createInitialState, passivePerSecond, prestige, resetState, tick } from "./game";
 import { clearSave, loadGameState, saveGameState } from "./storage";
 import * as ui from "./ui";
 
@@ -19,6 +20,16 @@ function resetGame(): void {
 	ui.render(els, state);
 }
 
+/**
+ * Watches the game and, when `kg` reaches the end of the final stage, performs
+ * a prestige: an extra mom spawns and all progress resets (slower each cycle).
+ */
+function monitorPrestige(): void {
+	if (isLastStageComplete(state.kg)) {
+		prestige(state);
+	}
+}
+
 ui.setupMenu(resetGame);
 
 let clickCount = 0;
@@ -26,6 +37,7 @@ let clickCount = 0;
 els.mom.addEventListener("click", () => {
 	clickCount += 1;
 	const gain = clickMom(state);
+	monitorPrestige();
 
 	const gainPosition = ui.pickPosition(els.clickZone, null);
 	if (clickCount % 3 === 0) {
@@ -54,6 +66,8 @@ function frame(now: number): void {
 	if (ticks > 0) {
 		tick(state, ticks * (TICK_MS / 1000));
 	}
+
+	monitorPrestige();
 
 	ui.render(els, state);
 

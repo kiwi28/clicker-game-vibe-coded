@@ -25,5 +25,7 @@ export interface GameState {
 	mame: number;
 	mamePerSec: number;
 	kg: number;
+	/** Number of mom icons (starts at 1; +1 each time the final stage ends). */
+	moms: number;
 	buildings: Record<BuildingId, number>;
 }

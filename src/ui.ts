@@ -25,6 +25,7 @@ export interface Elements {
 	kg: HTMLElement;
 	mom: HTMLButtonElement;
 	momEmoji: HTMLElement;
+	momStack: HTMLElement;
 	stageLabel: HTMLElement;
 	stageBonus: HTMLElement;
 	clickZone: HTMLElement;
@@ -59,6 +60,7 @@ function queryElements(): Elements {
 		kg: byId("kg-value"),
 		mom: byId("mom") as HTMLButtonElement,
 		momEmoji: byId("mom-emoji"),
+		momStack: byId("mom-stack"),
 		stageLabel: byId("stage-label"),
 		stageBonus: byId("stage-bonus"),
 		clickZone: byId("click-zone"),
@@ -72,11 +74,13 @@ export function init(state: GameState): Elements {
 	const els = queryElements();
 	buildBuildingList(els, state);
 	setupTabs();
+	setupPanel();
 	return els;
 }
 
 export function render(els: Elements, state: GameState): void {
 	renderHud(els, state);
+	renderMoms(els, state);
 	renderBuildings(state);
 	renderBuildingsTotal(els, state);
 }
@@ -90,12 +94,44 @@ function renderHud(els: Elements, state: GameState): void {
 	els.kg.textContent = state.kg.toString();
 
 	els.momEmoji.textContent = stage.emoji;
-	els.momEmoji.style.setProperty(
+	els.momStack.style.setProperty(
 		"--mom-scale",
 		scaleFactor(state.kg).toString(),
 	);
 	els.stageLabel.textContent = stage.title;
 	els.stageBonus.textContent = `+${Math.round((bonus - 1) * 100)}% MAME / click`;
+}
+
+/**
+ * Renders one mom icon per prestige. The primary icon (index 0) is the
+ * clickable button; each additional icon overlaps it, offset +50% in x and y
+ * for every step, forming a diagonal stack that scales to any `state.moms`.
+ */
+function renderMoms(els: Elements, state: GameState): void {
+	const extras = Array.from(
+		els.momStack.querySelectorAll<HTMLElement>(".mom__emoji--extra"),
+	);
+
+	// Drop extras beyond the current mom count.
+	while (extras.length > state.moms - 1) {
+		const extra = extras.pop();
+		if (extra !== undefined) extra.remove();
+	}
+
+	// Add any missing extras, keeping `--mom-index` 1-based.
+	while (extras.length < state.moms - 1) {
+		const index = extras.length + 1;
+		const extra = document.createElement("span");
+		extra.className = "mom__emoji mom__emoji--extra";
+		extra.style.setProperty("--mom-index", index.toString());
+		els.momStack.appendChild(extra);
+		extras.push(extra);
+	}
+
+	// Mirror the current stage's emoji on every extra icon.
+	for (const extra of extras) {
+		extra.textContent = els.momEmoji.textContent;
+	}
 }
 
 function renderBuildings(state: GameState): void {
@@ -227,6 +263,16 @@ function setupTabs(): void {
 	}
 }
 
+/** Collapses/expands the buildings & upgrades panel (mobile accordion). */
+function setupPanel(): void {
+	const panel = byId("panel");
+	const toggle = byId("panel-toggle") as HTMLButtonElement;
+	toggle.addEventListener("click", () => {
+		const collapsed = panel.classList.toggle("is-collapsed");
+		toggle.setAttribute("aria-expanded", String(!collapsed));
+	});
+}
+
 export function pickPosition(
 	parent: HTMLElement,
 	avoid: FloatPoint | null,
@@ -288,49 +334,57 @@ function formatGain(value: number): string {
 	return Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(1);
 }
 
-/** Wires the header menu: open/close, and the confirmed reset flow. */
+/** Wires the header menu (open/close) and the reset confirmation modal. */
 export function setupMenu(onReset: () => void): void {
 	const button = byId("menu-button");
 	const menu = byId("menu");
 	const resetItem = byId("reset-game");
-	const confirm = byId("reset-confirm");
+	const modal = byId("reset-modal");
 	const confirmYes = byId("reset-yes");
 	const confirmNo = byId("reset-no");
 
-	const close = (): void => {
+	const closeMenu = (): void => {
 		menu.hidden = true;
-		confirm.hidden = true;
-		resetItem.hidden = false;
 		button.setAttribute("aria-expanded", "false");
 		button.classList.remove("is-open");
 	};
 
-	const open = (): void => {
-		confirm.hidden = true;
-		resetItem.hidden = false;
+	const openMenu = (): void => {
 		menu.hidden = false;
 		button.setAttribute("aria-expanded", "true");
 		button.classList.add("is-open");
 	};
 
+	const closeModal = (): void => {
+		modal.hidden = true;
+	};
+
+	const openModal = (): void => {
+		modal.hidden = false;
+		confirmNo.focus();
+	};
+
 	button.addEventListener("click", () => {
-		if (menu.hidden) open();
-		else close();
+		if (menu.hidden) openMenu();
+		else closeMenu();
 	});
 
 	resetItem.addEventListener("click", () => {
-		resetItem.hidden = true;
-		confirm.hidden = false;
+		closeMenu();
+		openModal();
 	});
 
 	confirmYes.addEventListener("click", () => {
 		onReset();
-		close();
+		closeModal();
 	});
 
 	confirmNo.addEventListener("click", () => {
-		confirm.hidden = true;
-		resetItem.hidden = false;
+		closeModal();
+	});
+
+	modal.addEventListener("click", (event) => {
+		if (event.target === modal) closeModal();
 	});
 
 	document.addEventListener("click", (event) => {
@@ -340,11 +394,14 @@ export function setupMenu(onReset: () => void): void {
 			!button.contains(target) &&
 			!menu.contains(target)
 		) {
-			close();
+			closeMenu();
 		}
 	});
 
 	document.addEventListener("keydown", (event) => {
-		if (event.key === "Escape") close();
+		if (event.key === "Escape") {
+			if (!modal.hidden) closeModal();
+			else closeMenu();
+		}
 	});
 }

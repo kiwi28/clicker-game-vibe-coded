@@ -73,31 +73,6 @@
 						>
 							Reset game
 						</button>
-						<div
-							id="reset-confirm"
-							class="menu__confirm"
-							hidden
-						>
-							<p class="menu__confirm-text">
-								Reset all progress?
-							</p>
-							<div class="menu__confirm-actions">
-								<button
-									id="reset-yes"
-									class="menu__confirm-btn menu__confirm-btn--danger"
-									type="button"
-								>
-									Reset
-								</button>
-								<button
-									id="reset-no"
-									class="menu__confirm-btn"
-									type="button"
-								>
-									Cancel
-								</button>
-							</div>
-						</div>
 					</div>
 				</div>
 			</header>
@@ -108,18 +83,23 @@
 				aria-label="Click maică-ta"
 			>
 				<div class="mom-wrap">
-					<button
-						class="mom"
-						id="mom"
-						type="button"
-						aria-label="Maică-ta"
+					<div
+						class="mom-stack"
+						id="mom-stack"
 					>
-						<span
-							class="mom__emoji"
-							id="mom-emoji"
-							>🧓</span
+						<button
+							class="mom"
+							id="mom"
+							type="button"
+							aria-label="Maică-ta"
 						>
-					</button>
+							<span
+								class="mom__emoji"
+								id="mom-emoji"
+								>🧓</span
+							>
+						</button>
+					</div>
 					<p
 						class="stage-label"
 						id="stage-label"
@@ -142,60 +122,133 @@
 				></div>
 			</section>
 
-			<aside class="panel">
-				<nav
-					class="tabs"
-					role="tablist"
-					aria-label="Categories"
+			<aside
+				class="panel is-collapsed"
+				id="panel"
+			>
+				<button
+					class="panel-toggle"
+					id="panel-toggle"
+					type="button"
+					aria-expanded="false"
+					aria-controls="panel-body"
 				>
-					<button
-						class="tab is-active"
-						type="button"
-						role="tab"
-						data-tab="buildings"
+					<span class="panel-toggle__label"
+						>Buildings &amp; Upgrades</span
 					>
-						Buildings
-					</button>
-					<button
-						class="tab"
-						type="button"
-						role="tab"
-						data-tab="upgrades"
+					<svg
+						class="panel-toggle__caret"
+						viewBox="0 0 24 24"
+						aria-hidden="true"
 					>
-						Upgrades
-					</button>
-					<button
-						class="tab"
-						type="button"
-						role="tab"
-						data-tab="achievements"
-					>
-						Achievements
-					</button>
-				</nav>
+						<path
+							d="M6 9l6 6 6-6"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						/>
+					</svg>
+				</button>
 				<div
-					class="tab-panel is-active"
-					data-panel="buildings"
+					class="panel-body"
+					id="panel-body"
 				>
+					<nav
+						class="tabs"
+						role="tablist"
+						aria-label="Categories"
+					>
+						<button
+							class="tab is-active"
+							type="button"
+							role="tab"
+							data-tab="buildings"
+						>
+							Buildings
+						</button>
+						<button
+							class="tab"
+							type="button"
+							role="tab"
+							data-tab="upgrades"
+						>
+							Upgrades
+						</button>
+						<button
+							class="tab"
+							type="button"
+							role="tab"
+							data-tab="achievements"
+						>
+							Achievements
+						</button>
+					</nav>
 					<div
-						class="building-list"
-						id="building-list"
-					></div>
-				</div>
-				<div
-					class="tab-panel"
-					data-panel="upgrades"
-				>
-					<p class="empty">Coming soon…</p>
-				</div>
-				<div
-					class="tab-panel"
-					data-panel="achievements"
-				>
-					<p class="empty">Coming soon…</p>
+						class="tab-panel is-active"
+						data-panel="buildings"
+					>
+						<div
+							class="building-list"
+							id="building-list"
+						></div>
+					</div>
+					<div
+						class="tab-panel"
+						data-panel="upgrades"
+					>
+						<p class="empty">Coming soon…</p>
+					</div>
+					<div
+						class="tab-panel"
+						data-panel="achievements"
+					>
+						<p class="empty">Coming soon…</p>
+					</div>
 				</div>
 			</aside>
 		</main>
+
+		<div
+			class="modal"
+			id="reset-modal"
+			hidden
+		>
+			<div
+				class="modal__dialog"
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby="reset-modal-title"
+			>
+				<h2
+					class="modal__title"
+					id="reset-modal-title"
+				>
+					Reset game?
+				</h2>
+				<p class="modal__text">
+					This wipes all your progress. Maică-ta won't forgive
+					you.
+				</p>
+				<div class="modal__actions">
+					<button
+						id="reset-yes"
+						class="modal__btn modal__btn--danger"
+						type="button"
+					>
+						Reset
+					</button>
+					<button
+						id="reset-no"
+						class="modal__btn"
+						type="button"
+					>
+						Cancel
+					</button>
+				</div>
+			</div>
+		</div>
 
 		<script
 			type="module"
