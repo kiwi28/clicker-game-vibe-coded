@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Maică-ta Clicker</string>
+    <string name="title_activity_main">Maică-ta Clicker</string>
+    <string name="package_name">com.maicata.clicker</string>
+    <string name="custom_url_scheme">com.maicata.clicker</string>
+</resources>

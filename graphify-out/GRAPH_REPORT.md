@@ -1,7 +1,7 @@
 # Graph Report - ai-slop-game  (2026-11-17)
 
 ## Corpus Check
-- 16 files · ~14,136 words
+- 16 files · ~14,144 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 3 file(s) not represented in the graph (top: (none) 2, .css 1)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7aae37cc`
+- Built from commit: `6d87393b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -31,23 +31,23 @@
 3. `init()` - 9 edges
 4. `renderHud()` - 8 edges
 5. `renderMoms()` - 8 edges
-6. `buyMaxBuilding()` - 7 edges
-7. `setupAudioSettings()` - 7 edges
+6. `setupDevMenu()` - 7 edges
+7. `BuildingId` - 7 edges
 8. `frame()` - 7 edges
-9. `BuildingId` - 7 edges
-10. `setupDevMenu()` - 7 edges
+9. `setupAudioSettings()` - 7 edges
+10. `buyMaxBuilding()` - 7 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `parseGameState()` --indirect_call--> `isAchievementId()`  [INFERRED]
-  src/storage.ts → src/achievements.ts
-- `setupAudioSettings()` --calls--> `getMusicVolume()`  [EXTRACTED]
-  src/main.ts → src/audio.ts
-- `setupAudioSettings()` --calls--> `getClickVolume()`  [EXTRACTED]
-  src/main.ts → src/audio.ts
-- `setupAudioSettings()` --calls--> `isMuted()`  [EXTRACTED]
-  src/main.ts → src/audio.ts
-- `clickMom()` --calls--> `getStage()`  [EXTRACTED]
-  src/game.ts → src/fatness.ts
+- `init()` --calls--> `applyClickZonePattern()`  [EXTRACTED]
+  src/ui.ts → src/pattern.ts
+- `renderHud()` --calls--> `bonusMultiplier()`  [EXTRACTED]
+  src/ui.ts → src/fatness.ts
+- `renderHud()` --calls--> `getStage()`  [EXTRACTED]
+  src/ui.ts → src/fatness.ts
+- `renderHud()` --calls--> `formatNumber()`  [EXTRACTED]
+  src/ui.ts → src/format.ts
+- `renderMoms()` --calls--> `scaleFactor()`  [EXTRACTED]
+  src/ui.ts → src/fatness.ts
 
 ## Import Cycles
 - None detected.

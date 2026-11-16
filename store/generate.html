@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Maică-ta Clicker — asset generator</title>
+</head>
+<body>
+<script>
+"use strict";
+
+const P = {
+  bg: "#0c1410",
+  bg2: "#122019",
+  panel: "#14201a",
+  panel2: "#1d2e25",
+  border: "#244031",
+  lime: "#a3e635",
+  lime2: "#7ee2a8",
+  gold: "#f5c542",
+  mint: "#3ecf6e",
+  text: "#e8f3e6",
+  muted: "#7fa88c",
+  white: "#ffffff",
+  danger: "#ff6b6b",
+};
+
+const FONT = '"Segoe UI", Arial, Helvetica, sans-serif';
+
+function canvas(w, h) {
+  const c = document.createElement("canvas");
+  c.width = w;
+  c.height = h;
+  return c;
+}
+
+function rr(x, y, w, h, r) {
+  const ctx = rr._c;
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  rr._c = ctx;
+  rr(x, y, w, h, r);
+}
+
+function linear(ctx, x0, y0, x1, y1, stops) {
+  const g = ctx.createLinearGradient(x0, y0, x1, y1);
+  for (const [o, c] of stops) g.addColorStop(o, c);
+  return g;
+}
+
+function radial(ctx, x, y, r0, r1, stops) {
+  const g = ctx.createRadialGradient(x, y, r0, x, y, r1);
+  for (const [o, c] of stops) g.addColorStop(o, c);
+  return g;
+}
+
+function fillBackground(ctx, w, h) {
+  ctx.fillStyle = P.bg;
+  ctx.fillRect(0, 0, w, h);
+  const g = radial(ctx, w * 0.5, -h * 0.1, 0, h * 0.9, [
+    [0, "rgba(163,230,53,0.16)"],
+    [1, "rgba(163,230,53,0)"],
+  ]);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, w, h);
+}
+
+function speechBubble(ctx, x, y, w, h, tailLeft, color, stroke) {
+  const r = 24;
+  roundRect(ctx, x, y, w, h, r);
+  ctx.fillStyle = color;
+  ctx.fill();
+  if (stroke) {
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = stroke;
+    ctx.stroke();
+  }
+  ctx.beginPath();
+  if (tailLeft) {
+    ctx.moveTo(x + 26, y + h - 4);
+    ctx.lineTo(x + 52, y + h + 30);
+    ctx.lineTo(x + 84, y + h - 4);
+  } else {
+    ctx.moveTo(x + w - 84, y + h - 4);
+    ctx.lineTo(x + w - 52, y + h + 30);
+    ctx.lineTo(x + w - 26, y + h - 4);
+  }
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+
+// ---------------------------------------------------------------------------
+// 1. App icon (512x512)
+// ---------------------------------------------------------------------------
+function drawIcon() {
+  const c = canvas(512, 512);
+  const x = c.getContext("2d");
+
+  const bg = radial(x, 256, 200, 0, 512, [
+    [0, "#1c3a2a"],
+    [0.55, "#122019"],
+    [1, "#0c1410"],
+  ]);
+  x.fillStyle = bg;
+  x.fillRect(0, 0, 512, 512);
+
+  const glow = radial(x, 256, 40, 0, 420, [
+    [0, "rgba(163,230,53,0.30)"],
+    [1, "rgba(163,230,53,0)"],
+  ]);
+  x.fillStyle = glow;
+  x.fillRect(0, 0, 512, 512);
+
+  // speech bubble
+  const bx = 88, by = 116, bw = 336, bh = 200;
+  speechBubble(x, bx, by, bw, bh, true, P.lime, null);
+
+  // letter M
+  x.fillStyle = "#0c1410";
+  x.font = "900 176px " + FONT;
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.fillText("M", 256, by + bh / 2 - 8);
+
+  // gold dot
+  x.beginPath();
+  x.arc(376, 154, 18, 0, Math.PI * 2);
+  x.fillStyle = P.gold;
+  x.fill();
+
+  // subtle bottom accent
+  x.fillStyle = P.gold;
+  roundRect(x, 200, 372, 112, 10, 12);
+  x.fill();
+
+  return c;
+}
+
+// ---------------------------------------------------------------------------
+// 2. Feature graphic (1024x500)
+// ---------------------------------------------------------------------------
+function drawFeature() {
+  const c = canvas(1024, 500);
+  const x = c.getContext("2d");
+
+  fillBackground(x, 1024, 500);
+
+  // bottom green glow
+  x.fillStyle = radial(x, 820, 500, 0, 700, [
+    [0, "rgba(62,207,110,0.18)"],
+    [1, "rgba(62,207,110,0)"],
+  ]);
+  x.fillRect(0, 0, 1024, 500);
+
+  // wordmark
+  x.textAlign = "left";
+  x.textBaseline = "alphabetic";
+  const tg = linear(x, 64, 130, 620, 130, [
+    [0, P.lime],
+    [0.55, P.gold],
+    [1, P.lime2],
+  ]);
+  x.fillStyle = tg;
+  x.font = "800 104px " + FONT;
+  x.fillText("Maică-ta", 64, 196);
+  x.font = "800 104px " + FONT;
+  x.fillText("Clicker", 64, 306);
+
+  x.fillStyle = P.muted;
+  x.font = "700 30px " + FONT;
+  x.fillText("TAP  •  EARN MAME  •  GET HEAVY", 66, 366);
+
+  // tag chip
+  x.fillStyle = "rgba(163,230,53,0.12)";
+  roundRect(x, 66, 396, 300, 46, 23);
+  x.fill();
+  x.strokeStyle = "rgba(163,230,53,0.5)";
+  x.lineWidth = 2;
+  x.stroke();
+  x.fillStyle = P.lime;
+  x.font = "700 24px " + FONT;
+  x.fillText("IDLE  CLICKER", 96, 427);
+
+  // right: mom emoji + bubbles
+  x.textAlign = "center";
+  x.textBaseline = "alphabetic";
+  x.font = "230px " + FONT;
+  x.fillText("\u{1F9D3}", 830, 404); // 🧓
+
+  // roast bubbles
+  x.font = "700 30px " + FONT;
+  speechBubble(x, 672, 70, 250, 78, false, "#ffffff", null);
+  x.fillStyle = "#0c1410";
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.fillText("maică-ta!", 797, 112);
+
+  x.font = "700 26px " + FONT;
+  speechBubble(x, 540, 250, 210, 70, true, P.gold, null);
+  x.fillStyle = "#0c1410";
+  x.fillText("auzi la el", 645, 288);
+
+  // coins
+  for (let i = 0; i < 4; i++) {
+    const cy = 300 + Math.sin(i * 1.7) * 90;
+    const cx = 730 + Math.cos(i * 2.3) * 120;
+    x.beginPath();
+    x.arc(cx, cy, 20, 0, Math.PI * 2);
+    x.fillStyle = P.gold;
+    x.fill();
+    x.fillStyle = "#0c1410";
+    x.font = "700 22px " + FONT;
+    x.fillText("M", cx, cy + 1);
+  }
+
+  return c;
+}
+
+// ---------------------------------------------------------------------------
+// Screenshot helpers (1080 x 1920)
+// ---------------------------------------------------------------------------
+function shotBase() {
+  const c = canvas(1080, 1920);
+  const x = c.getContext("2d");
+  fillBackground(x, 1080, 1920);
+  return [c, x];
+}
+
+function drawHUD(x, mame, mps, kg) {
+  // status bar-ish safe area
+  x.fillStyle = "rgba(20,32,26,0.9)";
+  roundRect(x, 24, 40, 1032, 150, 28);
+  x.fill();
+  x.strokeStyle = P.border;
+  x.lineWidth = 3;
+  x.stroke();
+
+  const stats = [
+    ["Mame", mame],
+    ["per second", mps],
+    ["kg", kg],
+  ];
+  const colW = 1032 / 3;
+  x.textBaseline = "middle";
+  for (let i = 0; i < 3; i++) {
+    const cx = 24 + colW * i;
+    x.textAlign = "center";
+    x.fillStyle = P.muted;
+    x.font = "600 26px " + FONT;
+    x.fillText(stats[i][0], cx + colW / 2, 84);
+    x.fillStyle = i === 0 ? P.lime : P.text;
+    x.font = "800 52px " + FONT;
+    x.fillText(stats[i][1], cx + colW / 2, 144);
+  }
+  // separator lines
+  x.strokeStyle = P.border;
+  x.lineWidth = 2;
+  x.beginPath();
+  x.moveTo(24 + colW, 70);
+  x.lineTo(24 + colW, 162);
+  x.moveTo(24 + colW * 2, 70);
+  x.lineTo(24 + colW * 2, 162);
+  x.stroke();
+}
+
+function drawMom(x, cx, cy, size, emoji) {
+  // glow ring
+  const g = radial(x, cx, cy, size * 0.1, size * 0.95, [
+    [0, "rgba(163,230,53,0.25)"],
+    [1, "rgba(163,230,53,0)"],
+  ]);
+  x.fillStyle = g;
+  x.beginPath();
+  x.arc(cx, cy, size * 0.95, 0, Math.PI * 2);
+  x.fill();
+
+  // platform
+  x.fillStyle = P.panel2;
+  x.beginPath();
+  x.ellipse(cx, cy + size * 0.72, size * 0.62, size * 0.14, 0, 0, Math.PI * 2);
+  x.fill();
+  x.strokeStyle = P.border;
+  x.lineWidth = 4;
+  x.stroke();
+
+  // emoji
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.font = size + "px " + FONT;
+  x.fillText(emoji, cx, cy + size * 0.06);
+}
+
+function drawPanelHeader(x, y) {
+  x.fillStyle = P.panel;
+  roundRect(x, 24, y, 1032, 88, 24);
+  x.fill();
+  x.strokeStyle = P.border;
+  x.lineWidth = 3;
+  x.stroke();
+
+  x.fillStyle = P.text;
+  x.font = "800 38px " + FONT;
+  x.textAlign = "left";
+  x.textBaseline = "middle";
+  x.fillText("Buildings & Upgrades", 60, y + 44);
+
+  // caret
+  x.strokeStyle = P.lime;
+  x.lineWidth = 6;
+  x.lineCap = "round";
+  x.beginPath();
+  x.moveTo(990, y + 30);
+  x.lineTo(1012, y + 50);
+  x.lineTo(1034, y + 30);
+  x.stroke();
+}
+
+function tabBar(x, y, active) {
+  const tabs = ["Buildings", "Upgrades", "Achievements"];
+  const w = 1032 / 3;
+  x.textBaseline = "middle";
+  for (let i = 0; i < 3; i++) {
+    const tx = 24 + i * w;
+    x.fillStyle = i === active ? P.panel2 : P.panel;
+    roundRect(x, tx, y, w - 8, 80, 20);
+    x.fill();
+    if (i === active) {
+      x.strokeStyle = P.lime;
+      x.lineWidth = 3;
+      x.stroke();
+    }
+    x.fillStyle = i === active ? P.lime : P.muted;
+    x.font = (i === active ? "800 34px " : "600 32px ") + FONT;
+    x.textAlign = "center";
+    x.fillText(tabs[i], tx + w / 2, y + 42);
+  }
+}
+
+function buildingRow(x, y, emoji, name, cost, owned, canAfford) {
+  x.fillStyle = canAfford ? P.panel2 : P.panel;
+  roundRect(x, 36, y, 1008, 150, 24);
+  x.fill();
+  x.strokeStyle = canAfford ? P.lime : P.border;
+  x.lineWidth = canAfford ? 3 : 2;
+  x.stroke();
+
+  // emoji tile
+  x.fillStyle = P.bg;
+  roundRect(x, 60, y + 22, 106, 106, 20);
+  x.fill();
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.font = "58px " + FONT;
+  x.fillText(emoji, 113, y + 77);
+
+  x.textAlign = "left";
+  x.fillStyle = P.text;
+  x.font = "700 34px " + FONT;
+  x.fillText(name, 200, y + 58);
+
+  x.fillStyle = P.muted;
+  x.font = "600 28px " + FONT;
+  x.fillText("+" + cost.split(" ")[0] + " /sec", 200, y + 104);
+
+  // cost button
+  x.fillStyle = canAfford ? P.lime : P.panel2;
+  roundRect(x, 700, y + 38, 310, 74, 20);
+  x.fill();
+  x.fillStyle = canAfford ? "#0c1410" : P.muted;
+  x.font = "800 34px " + FONT;
+  x.textAlign = "center";
+  x.fillText(cost, 855, y + 77);
+
+  // owned
+  x.fillStyle = P.muted;
+  x.font = "800 30px " + FONT;
+  x.textAlign = "right";
+  x.fillText("x" + owned, 1020, y + 130);
+}
+
+function achievement(x, y, emoji, name, done, gold) {
+  const s = 330;
+  x.fillStyle = gold ? "#2a2412" : P.panel;
+  roundRect(x, y, s, s, 28);
+  x.fill();
+  x.strokeStyle = gold ? P.gold : P.border;
+  x.lineWidth = gold ? 4 : 2;
+  x.stroke();
+
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.font = "110px " + FONT;
+  x.fillText(emoji, x + s / 2, y + 118);
+
+  x.fillStyle = done ? P.lime : P.muted;
+  x.font = "700 30px " + FONT;
+  x.fillText(name, x + s / 2, y + 246);
+
+  // status
+  x.fillStyle = done ? P.mint : P.muted;
+  x.font = "800 28px " + FONT;
+  x.fillText(done ? "✓ UNLOCKED" : "LOCKED", x + s / 2, y + 294);
+}
+
+// ---------------------------------------------------------------------------
+// 3. Screenshot 1 — main click screen
+// ---------------------------------------------------------------------------
+function drawShot1() {
+  const [c, x] = shotBase();
+  drawHUD(x, "12.4K", "+340/sec", "87");
+
+  drawMom(x, 540, 1000, 300, "\u{1F9D3}"); // 🧓
+
+  // roast bubble
+  x.font = "700 40px " + FONT;
+  speechBubble(x, 300, 500, 300, 96, true, "#ffffff", null);
+  x.fillStyle = "#0c1410";
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.fillText("auzi la el", 450, 550);
+
+  // stage info
+  x.textAlign = "center";
+  x.fillStyle = P.text;
+  x.font = "800 46px " + FONT;
+  x.fillText("Local legend", 540, 1420);
+  x.fillStyle = P.lime2;
+  x.font = "700 32px " + FONT;
+  x.fillText("+15% MAME / click", 540, 1478);
+
+  // golden mom hint
+  x.fillStyle = "rgba(245,197,66,0.12)";
+  roundRect(x, 240, 1540, 600, 80, 24);
+  x.fill();
+  x.strokeStyle = "rgba(245,197,66,0.5)";
+  x.lineWidth = 2;
+  x.stroke();
+  x.fillStyle = P.gold;
+  x.font = "700 30px " + FONT;
+  x.fillText("✨ Golden maică-ta soon", 540, 1582);
+
+  drawPanelHeader(x, 1720);
+  return c;
+}
+
+// ---------------------------------------------------------------------------
+// 4. Screenshot 2 — buildings
+// ---------------------------------------------------------------------------
+function drawShot2() {
+  const [c, x] = shotBase();
+  drawHUD(x, "3.8K", "+96/sec", "54");
+
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.font = "340px " + FONT;
+  x.fillText("\u{1F475}", 540, 520); // 👵
+
+  tabBar(x, 820, 0);
+
+  const rows = [
+    ["\u{1F4AA}", "Maică-ta la sală", "15 Mame", 6, true],
+    ["\u{1F3B0}", "Maică-ta la bingo", "100 Mame", 3, true],
+    ["\u{1F6D2}", "Maică-ta la piață", "1.1K Mame", 1, true],
+    ["\u{1F4FA}", "Maică-ta la TV", "12K Mame", 0, false],
+    ["\u{1F6D7}", "Maică-ta în lift", "130K Mame", 0, false],
+  ];
+  let y = 930;
+  for (const r of rows) {
+    buildingRow(x, y, r[0], r[1], r[2], r[3], r[4]);
+    y += 172;
+  }
+  return c;
+}
+
+// ---------------------------------------------------------------------------
+// 5. Screenshot 3 — achievements
+// ---------------------------------------------------------------------------
+function drawShot3() {
+  const [c, x] = shotBase();
+  drawHUD(x, "1.0M", "+3.4K/sec", "4.2K");
+
+  x.textAlign = "center";
+  x.textBaseline = "middle";
+  x.font = "300px " + FONT;
+  x.fillText("\u{1F3C6}", 540, 520); // 🏆 achievements header
+
+  tabBar(x, 820, 2);
+
+  const items = [
+    ["\u{1F44D}", "First Click", true, false],
+    ["\u{1F4B0}", "100 Mame", true, false],
+    ["\u{1F3E0}", "First Building", true, false],
+    ["\u2696\uFE0F", "Over 100 kg", true, true],
+    ["\u{1F3B0}", "Bingo!", false, false],
+    ["\u{1F4E6}", "Listed on OLX", false, false],
+  ];
+  const colX = [24, 372, 720];
+  const rowY = [930, 1290];
+  let i = 0;
+  for (let r = 0; r < 2; r++) {
+    for (let col = 0; col < 3; col++) {
+      const it = items[i++];
+      achievement(x, colX[col], rowY[r], it[0], it[1], it[2], it[3]);
+    }
+  }
+  return c;
+}
+
+// ---------------------------------------------------------------------------
+// download helpers + exports
+// ---------------------------------------------------------------------------
+function dl(name, dataURL) {
+  const a = document.createElement("a");
+  a.href = dataURL;
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  return name;
+}
+
+window.MTC = {
+  icon: () => dl("icon-512.png", drawIcon().toDataURL("image/png")),
+  feature: () => dl("feature-graphic.png", drawFeature().toDataURL("image/png")),
+  shot1: () => dl("screenshot-1-main.png", drawShot1().toDataURL("image/png")),
+  shot2: () => dl("screenshot-2-buildings.png", drawShot2().toDataURL("image/png")),
+  shot3: () => dl("screenshot-3-achievements.png", drawShot3().toDataURL("image/png")),
+  // base64 fallback accessor (no download)
+  b64: {
+    icon: () => drawIcon().toDataURL("image/png"),
+    feature: () => drawFeature().toDataURL("image/png"),
+    shot1: () => drawShot1().toDataURL("image/png"),
+    shot2: () => drawShot2().toDataURL("image/png"),
+    shot3: () => drawShot3().toDataURL("image/png"),
+  },
+};
+</script>
+</body>
+</html>
