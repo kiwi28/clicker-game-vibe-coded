@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Maică-ta Clicker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <main class="app">
+      <header class="hud">
+        <div class="stat">
+          <span class="stat__label">Mame</span>
+          <span class="stat__value" id="mame-value">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat__label">per second</span>
+          <span class="stat__value" id="mps-value">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat__label">kg</span>
+          <span class="stat__value" id="kg-value">0</span>
+        </div>
+      </header>
+
+      <section class="click-zone" aria-label="Click maică-ta">
+        <div class="mom-wrap">
+          <button class="mom" id="mom" type="button" aria-label="Maică-ta">
+            <span class="mom__emoji" id="mom-emoji">🧓</span>
+          </button>
+          <p class="stage-label" id="stage-label">Regular mom</p>
+          <p class="stage-bonus" id="stage-bonus">+0% click</p>
+        </div>
+      </section>
+
+      <aside class="panel">
+        <nav class="tabs" role="tablist" aria-label="Categories">
+          <button class="tab is-active" type="button" role="tab" data-tab="buildings">Buildings</button>
+          <button class="tab" type="button" role="tab" data-tab="upgrades">Upgrades</button>
+          <button class="tab" type="button" role="tab" data-tab="achievements">Achievements</button>
+        </nav>
+        <div class="tab-panel is-active" data-panel="buildings"><p class="empty">Coming soon…</p></div>
+        <div class="tab-panel" data-panel="upgrades"><p class="empty">Coming soon…</p></div>
+        <div class="tab-panel" data-panel="achievements"><p class="empty">Coming soon…</p></div>
+      </aside>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
