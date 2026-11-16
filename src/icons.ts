@@ -12,8 +12,13 @@ import elevatorIcon from "@tabler/icons/filled/elevator.svg?raw";
 import tagIcon from "@tabler/icons/filled/tag.svg?raw";
 import satelliteIcon from "@tabler/icons/filled/satellite.svg?raw";
 import busIcon from "@tabler/icons/filled/bus.svg?raw";
+import flameIcon from "@tabler/icons/filled/flame.svg?raw";
+import videoIcon from "@tabler/icons/filled/video.svg?raw";
+import handFingerIcon from "@tabler/icons/outline/hand-finger.svg?raw";
+import handTwoFingersIcon from "@tabler/icons/outline/hand-two-fingers.svg?raw";
+import shoeIcon from "@tabler/icons/outline/shoe.svg?raw";
 
-import type { BuildingId } from "./types";
+import type { BuildingId, ClickUpgradeId } from "./types";
 
 export interface IconDef {
 	svg: string;
@@ -29,4 +34,12 @@ export const ICONS: Record<BuildingId, IconDef> = {
 	olx: { svg: tagIcon, color: "#ff7043" },
 	antenna: { svg: satelliteIcon, color: "#26c6da" },
 	bus: { svg: busIcon, color: "#8d6e63" },
+};
+
+export const CLICK_UPGRADE_ICONS: Record<ClickUpgradeId, IconDef> = {
+	slap: { svg: handFingerIcon, color: "#ef5350" },
+	palmadubla: { svg: handTwoFingersIcon, color: "#ec407a" },
+	papuc: { svg: shoeIcon, color: "#ffa726" },
+	roastlegend: { svg: flameIcon, color: "#f5c542" },
+	apelvideo: { svg: videoIcon, color: "#42a5f5" },
 };

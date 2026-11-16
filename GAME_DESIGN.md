@@ -143,16 +143,16 @@ Upgrades are the heart of a clicker. Each one is a joke. Split into two types:
 Fun pop-up badges, each grants a tiny bonus (e.g. +5% global) or is purely
 cosmetic. Suggestions:
 
-- **Prima arsură** — first click
-- **100 de Mame** — first 100 Mame
-- **Sală deschisă** — buy your first building
-- **A trecut de 100 kg** — mom hits 100 kg
-- **Bingo!** — own 10 "la bingo"
-- **Vândută pe OLX** — buy "pe OLX"
-- **Antena instalată** — buy "cu antena"
-- **Un milion de Mame** — 1M total Mame earned
-- **Maică-ta la TV** — own 25 "la TV"
-- **Legenda** — all upgrades purchased
+- **First Click** — first click
+- **100 Mame** — first 100 Mame
+- **First Building** — buy your first building
+- **Over 100 kg** — mom hits 100 kg
+- **Bingo!** — own 10 Bingo buildings
+- **Listed on OLX** — list your mom on OLX
+- **Antenna Installed** — give your mom an antenna
+- **One Million Mame** — 1M total Mame earned
+- **Your Mom on TV** — own 25 TV buildings
+- **Legend** — all upgrades purchased
 
 ## 8. Rare events (spice)
 
@@ -165,7 +165,7 @@ cosmetic. Suggestions:
 - **Mid (5–20 min):** passive income takes over; buy expensive click upgrades;
   first achievements pop.
 - **Late (20–60 min):** big multipliers (OLX / antena), chase Golden Maică-ta,
-  hit 1M Mame, unlock "Legenda".
+  hit 1M Mame, unlock "Legend".
 
 ## 10. Save data
 

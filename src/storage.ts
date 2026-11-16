@@ -1,9 +1,17 @@
 /** Persists the game state to localStorage so it survives refreshes. */
 
-import { BUILDINGS } from "./upgrades";
-import type { BuildingId, GameState } from "./types";
+import { isAchievementId } from "./achievements";
+import { BUILDINGS, CLICK_UPGRADES } from "./upgrades";
+import type {
+	AchievementId,
+	BuildingId,
+	ClickUpgradeId,
+	GameState,
+} from "./types";
 
 const SAVE_KEY = "maica-ta-clicker:save:v1";
+const DISABLE_LOADER_KEY = "maica-ta-clicker:disableLoader";
+const DEV_ENABLED_KEY = "isDev";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null;
@@ -63,7 +71,71 @@ function parseGameState(value: unknown): GameState | null {
 		}
 	}
 
-	return { mame, mamePerSec, kg, moms, buildings };
+	const totalEarnedRaw = value.totalEarned;
+	let totalEarned: number;
+	if (totalEarnedRaw === undefined) {
+		// Legacy saves predate lifetime tracking; fall back to current Mame.
+		totalEarned = mame;
+	} else if (isFiniteNumber(totalEarnedRaw) && totalEarnedRaw >= 0) {
+		totalEarned = totalEarnedRaw;
+	} else {
+		return null;
+	}
+
+	const totalClicksRaw = value.totalClicks;
+	let totalClicks: number;
+	if (totalClicksRaw === undefined) {
+		totalClicks = 0;
+	} else if (isFiniteNumber(totalClicksRaw) && totalClicksRaw >= 0) {
+		totalClicks = totalClicksRaw;
+	} else {
+		return null;
+	}
+
+	const upgradesRaw = value.upgrades;
+	const upgrades: Record<ClickUpgradeId, boolean> = {
+		slap: false,
+		palmadubla: false,
+		papuc: false,
+		roastlegend: false,
+		apelvideo: false,
+	};
+	if (upgradesRaw !== undefined) {
+		if (!isRecord(upgradesRaw)) return null;
+		for (const upgrade of CLICK_UPGRADES) {
+			const owned = upgradesRaw[upgrade.id];
+			if (typeof owned === "boolean") {
+				upgrades[upgrade.id] = owned;
+			} else if (owned !== undefined) {
+				return null;
+			}
+		}
+	}
+
+	const achievementsRaw = value.achievements;
+	let achievements: AchievementId[];
+	if (achievementsRaw === undefined) {
+		achievements = [];
+	} else if (
+		Array.isArray(achievementsRaw) &&
+		achievementsRaw.every(isAchievementId)
+	) {
+		achievements = achievementsRaw;
+	} else {
+		return null;
+	}
+
+	return {
+		mame,
+		mamePerSec,
+		kg,
+		moms,
+		totalEarned,
+		totalClicks,
+		buildings,
+		upgrades,
+		achievements,
+	};
 }
 
 export function loadGameState(): GameState | null {
@@ -96,5 +168,40 @@ export function clearSave(): void {
 		localStorage.removeItem(SAVE_KEY);
 	} catch {
 		// Storage unavailable — nothing to clear.
+	}
+}
+
+/** True when the boot loading screen has been disabled from the dev tools. */
+export function isLoaderDisabled(): boolean {
+	try {
+		return localStorage.getItem(DISABLE_LOADER_KEY) === "true";
+	} catch {
+		return false;
+	}
+}
+
+export function setLoaderDisabled(disabled: boolean): void {
+	try {
+		localStorage.setItem(DISABLE_LOADER_KEY, disabled ? "true" : "false");
+	} catch {
+		// Storage unavailable — fail silently.
+	}
+}
+
+/** True when the dev menu has been enabled from the settings menu. */
+export function isDevEnabled(): boolean {
+	try {
+		return localStorage.getItem(DEV_ENABLED_KEY) === "true";
+	} catch {
+		return false;
+	}
+}
+
+export function setDevEnabled(enabled: boolean): void {
+	try {
+		if (enabled) localStorage.setItem(DEV_ENABLED_KEY, "true");
+		else localStorage.removeItem(DEV_ENABLED_KEY);
+	} catch {
+		// Storage unavailable — fail silently.
 	}
 }

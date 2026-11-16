@@ -18,8 +18,8 @@ export interface FatnessStage {
 export const FATNESS_STAGES: readonly [FatnessStage, ...FatnessStage[]] = [
 	{ stage: 0, minKg: 0, title: "Regular mom", emoji: "🧓" },
 	{ stage: 1, minKg: 10, title: "Well-fed", emoji: "👵" },
-	{ stage: 2, minKg: 50, title: "Chunky", emoji: "🐷" },
-	{ stage: 3, minKg: 150, title: "Hefty", emoji: "🐮" },
+	{ stage: 2, minKg: 100, title: "Chunky", emoji: "🐷" },
+	{ stage: 3, minKg: 250, title: "Hefty", emoji: "🐮" },
 	{ stage: 4, minKg: 600, title: "Absolute unit", emoji: "🦛" },
 	{ stage: 5, minKg: 2000, title: "Local legend", emoji: "🐘" },
 	{ stage: 6, minKg: 6000, title: "Two seats on the bus", emoji: "🦣" },

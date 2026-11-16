@@ -31,3 +31,33 @@ export function formatNumber(value: number): string {
 		: rounded.toFixed(1);
 	return `${text}${unit}`;
 }
+
+/**
+ * Formats the header MAME total with up to two decimals (rounded), keeping the
+ * K/M/B/T abbreviation for large values.
+ */
+export function formatMame(value: number): string {
+	const rounded = Math.round(value * 100) / 100;
+	if (rounded < 1000) return trimDecimals(rounded);
+
+	let tier = 0;
+	let scaled = rounded;
+	while (scaled >= 1000 && tier < UNITS.length - 1) {
+		scaled /= 1000;
+		tier += 1;
+	}
+
+	// Re-round after scaling so 999.995K does not read "1000K".
+	let display = Math.round(scaled * 100) / 100;
+	if (display >= 1000 && tier < UNITS.length - 1) {
+		tier += 1;
+		display = 1;
+	}
+
+	return `${trimDecimals(display)}${UNITS[tier] ?? ""}`;
+}
+
+/** Rounds to two decimals and drops trailing zeros (e.g. 12.3, not 12.30). */
+function trimDecimals(value: number): string {
+	return value.toFixed(2).replace(/\.?0+$/, "");
+}
