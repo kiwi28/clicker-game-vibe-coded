@@ -92,8 +92,10 @@ mom's emoji, makes it bigger, and grants a compounding click bonus.
 **Formulas**
 
 - **Stage** = the highest stage whose `kg needed` ≤ current `kg`.
-- **Emoji scale** (linear): `scaleFactor(stage) = 1 + 0.06 × stage`
-  (stage 0 = 1.00× … stage 9 = 1.54×).
+- **Emoji scale** (linear within a stage): `scaleFactor(kg) = 1 + progress`,
+  where `progress` = `(kg − stage.minKg) / (nextStage.minKg − stage.minKg)`,
+  clamped to `[0, 1]`. Each stage starts at 1× and reaches 2× at the next
+  stage, then resets to 1×.
 - **Click bonus** (compounded): `bonusMultiplier(stage) = 1.15^stage`
   (stage 0 = 1.00× … stage 9 ≈ 3.52×). Applied to click income:
   `clickGain = baseClickPower × bonusMultiplier(stage)`.

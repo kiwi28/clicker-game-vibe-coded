@@ -1,78 +1,102 @@
 # Graph Report - ai-slop-game  (2026-11-16)
 
 ## Corpus Check
-- cluster-only mode — file stats not available
+- 12 files · ~6,318 words
+- Verdict: corpus is large enough that graph structure adds value.
+- Unclassified: 3 file(s) not represented in the graph (top: (none) 2, .css 1)
 
 ## Summary
-- 65 nodes · 70 edges · 8 communities (5 shown, 3 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS
+- 103 nodes · 188 edges · 9 communities (8 shown, 1 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 2 edges (avg confidence: 0.85)
 - Token cost: 0 input · 0 output
 
+## Graph Freshness
+- Built from commit: `17eaaa5d`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
+
 ## Community Hubs (Navigation)
-- Community 0
-- Community 1
-- Community 2
-- Community 3
-- Community 4
-- Community 5
-- Community 6
+- main.ts
+- compilerOptions
+- package.json
+- fatness.ts
+- ui.ts
+- game.ts
+- game.ts
+- formatNumber
 
 ## God Nodes (most connected - your core abstractions)
 1. `compilerOptions` - 18 edges
-2. `scripts` - 5 edges
-3. `render()` - 4 edges
-4. `bonusMultiplier()` - 3 edges
-5. `getStage()` - 3 edges
-6. `scaleFactor()` - 3 edges
-7. `spawnFloat()` - 2 edges
-8. `spawnRoast()` - 2 edges
-9. `typescript@~5.6.3` - 2 edges
-10. `vite@^5.4.10` - 2 edges
+2. `render()` - 8 edges
+3. `nextCost()` - 6 edges
+4. `buyMaxBuilding()` - 6 edges
+5. `renderHud()` - 6 edges
+6. `buildBuildingList()` - 6 edges
+7. `BuildingId` - 6 edges
+8. `getStage()` - 6 edges
+9. `buyBuilding()` - 5 edges
+10. `bonusMultiplier()` - 5 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `render()` --calls--> `bonusMultiplier()`  [EXTRACTED]
-  src/main.ts → src/fatness.ts
-- `render()` --calls--> `getStage()`  [EXTRACTED]
-  src/main.ts → src/fatness.ts
-- `render()` --calls--> `scaleFactor()`  [EXTRACTED]
-  src/main.ts → src/fatness.ts
+- `resetGame()` --calls--> `resetState()`  [EXTRACTED]
+  src/main.ts → src/game.ts
+- `renderBuildings()` --calls--> `nextCost()`  [EXTRACTED]
+  src/ui.ts → src/game.ts
+- `buildBuildingList()` --calls--> `buyBuilding()`  [EXTRACTED]
+  src/ui.ts → src/game.ts
+- `buildBuildingList()` --calls--> `buyMaxBuilding()`  [EXTRACTED]
+  src/ui.ts → src/game.ts
+- `resetGame()` --calls--> `render()`  [EXTRACTED]
+  src/main.ts → src/ui.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (8 total, 3 thin omitted)
+## Communities (9 total, 1 thin omitted)
 
-### Community 0 - "Community 0"
-Cohesion: 0.11
-Nodes (12): clickZone, FloatPoint, GameState, kgValue, mameValue, mom, momEmoji, mpsValue (+4 more)
+### Community 0 - "main.ts"
+Cohesion: 0.19
+Nodes (12): tick(), els, frame(), last, resetGame(), clearSave(), saveGameState(), formatGain() (+4 more)
 
-### Community 1 - "Community 1"
-Cohesion: 0.11
-Nodes (18): compilerOptions, exactOptionalPropertyTypes, forceConsistentCasingInFileNames, isolatedModules, lib, module, moduleResolution, noEmit (+10 more)
+### Community 1 - "compilerOptions"
+Cohesion: 0.10
+Nodes (19): compilerOptions, exactOptionalPropertyTypes, forceConsistentCasingInFileNames, isolatedModules, lib, module, moduleResolution, noEmit (+11 more)
 
-### Community 2 - "Community 2"
+### Community 2 - "package.json"
+Cohesion: 0.13
+Nodes (17): dependencies, @tabler/icons@^3.52.0, devDependencies, typescript@~5.6.3, vite@^5.4.10, name, private, scripts (+9 more)
+
+### Community 3 - "fatness.ts"
+Cohesion: 0.33
+Nodes (8): BONUS_PER_STAGE, bonusMultiplier(), FATNESS_STAGES, FatnessStage, getStage(), scaleFactor(), clickMom(), renderHud()
+
+### Community 4 - "ui.ts"
 Cohesion: 0.24
-Nodes (9): devDependencies, typescript@~5.6.3, vite@^5.4.10, name, private, type, version, typescript (+1 more)
+Nodes (11): buildBuildingList(), BuildingView, buildingViews, byId(), Elements, FloatPoint, init(), queryElements() (+3 more)
 
-### Community 3 - "Community 3"
-Cohesion: 0.28
-Nodes (8): BONUS_PER_STAGE, bonusMultiplier(), FATNESS_STAGES, FatnessStage, getStage(), SCALE_PER_STAGE, scaleFactor(), render()
+### Community 5 - "game.ts"
+Cohesion: 0.29
+Nodes (9): IconDef, ICONS, isFiniteNumber(), isRecord(), loadGameState(), parseGameState(), Building, BuildingId (+1 more)
 
-### Community 4 - "Community 4"
-Cohesion: 0.40
-Nodes (5): scripts, build, dev, preview, typecheck
+### Community 6 - "game.ts"
+Cohesion: 0.38
+Nodes (9): buyBuilding(), buyMaxBuilding(), createInitialState(), nextCost(), passivePerSecond(), resetState(), GameState, buildingCost() (+1 more)
+
+### Community 8 - "formatNumber"
+Cohesion: 0.33
+Nodes (5): formatNumber(), UNITS, render(), renderBuildings(), renderBuildingsTotal()
 
 ## Knowledge Gaps
-- **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **1 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `compilerOptions` connect `Community 1` to `Community 6`?**
-  _High betweenness centrality (0.084) - this node is a cross-community bridge._
-- **Should `Community 0` be split into smaller, more focused modules?**
-  _Cohesion score 0.1111111111111111 - nodes in this community are weakly interconnected._
-- **Why does `scripts` connect `Community 4` to `Community 2`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
-- **Should `Community 1` be split into smaller, more focused modules?**
-  _Cohesion score 0.1111111111111111 - nodes in this community are weakly interconnected._
+- **Why does `@tabler/icons` connect `package.json` to `game.ts`?**
+  _High betweenness centrality (0.213) - this node is a cross-community bridge._
+- **Should `compilerOptions` be split into smaller, more focused modules?**
+  _Cohesion score 0.1 - nodes in this community are weakly interconnected._
+- **Why does `BuildingId` connect `game.ts` to `ui.ts`, `game.ts`?**
+  _High betweenness centrality (0.072) - this node is a cross-community bridge._
+- **Should `package.json` be split into smaller, more focused modules?**
+  _Cohesion score 0.13071895424836602 - nodes in this community are weakly interconnected._

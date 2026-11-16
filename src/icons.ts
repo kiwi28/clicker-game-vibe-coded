@@ -1,0 +1,32 @@
+/**
+ * Building icons and their fixed colors, centralized so every usage stays
+ * consistent. Add a new icon here once and reference it by building id —
+ * no need to remember to color-code it at each call site.
+ */
+
+import barbellIcon from "@tabler/icons/filled/barbell.svg?raw";
+import diceIcon from "@tabler/icons/filled/dice-5.svg?raw";
+import basketIcon from "@tabler/icons/filled/basket.svg?raw";
+import tvIcon from "@tabler/icons/filled/device-tv.svg?raw";
+import elevatorIcon from "@tabler/icons/filled/elevator.svg?raw";
+import tagIcon from "@tabler/icons/filled/tag.svg?raw";
+import satelliteIcon from "@tabler/icons/filled/satellite.svg?raw";
+import busIcon from "@tabler/icons/filled/bus.svg?raw";
+
+import type { BuildingId } from "./types";
+
+export interface IconDef {
+	svg: string;
+	color: string;
+}
+
+export const ICONS: Record<BuildingId, IconDef> = {
+	gym: { svg: barbellIcon, color: "#ef5350" },
+	bingo: { svg: diceIcon, color: "#ab47bc" },
+	market: { svg: basketIcon, color: "#66bb6a" },
+	tv: { svg: tvIcon, color: "#42a5f5" },
+	lift: { svg: elevatorIcon, color: "#ffca28" },
+	olx: { svg: tagIcon, color: "#ff7043" },
+	antenna: { svg: satelliteIcon, color: "#26c6da" },
+	bus: { svg: busIcon, color: "#8d6e63" },
+};
