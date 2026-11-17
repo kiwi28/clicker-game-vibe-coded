@@ -374,6 +374,9 @@ body {
   justify-content: center;
   min-height: 0;
   container-type: size;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
 }
 
 .click-zone__stats {

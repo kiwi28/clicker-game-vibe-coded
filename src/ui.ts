@@ -88,6 +88,7 @@ export interface Elements {
 	momEmoji: HTMLElement;
 	momStack: HTMLElement;
 	momCluster: HTMLElement;
+	momsZone: HTMLElement;
 	stageLabel: HTMLElement;
 	stageBonus: HTMLElement;
 	clickZone: HTMLElement;
@@ -142,6 +143,7 @@ function queryElements(): Elements {
 		momEmoji: byId("mom-emoji"),
 		momStack: byId("mom-stack"),
 		momCluster: byId("mom-cluster"),
+		momsZone: byId("click-zone-moms"),
 		stageLabel: byId("stage-label"),
 		stageBonus: byId("stage-bonus"),
 		clickZone: byId("click-zone"),

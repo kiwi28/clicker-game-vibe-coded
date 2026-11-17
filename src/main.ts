@@ -158,7 +158,7 @@ setupAudioSettings();
 
 let clickCount = 0;
 
-els.momCluster.addEventListener("click", () => {
+els.momsZone.addEventListener("click", () => {
 	if (ui.isExploding()) return;
 	// First click unlocks audio + fades music in; every click plays the click
 	// sound and keeps the music alive (it fades out after 5s idle).
