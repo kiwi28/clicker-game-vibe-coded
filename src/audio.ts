@@ -1,6 +1,7 @@
 /** Background music + click sound effects with per-source volume, mute, and fades. */
 
-const MUSIC_SRC = "/audio/music.mp3";
+import musicTracks from "virtual:music-tracks";
+
 const CLICK_SRC = "/audio/click.wav";
 const MUSIC_VOLUME_KEY = "maica-ta-clicker:musicVolume";
 const CLICK_VOLUME_KEY = "maica-ta-clicker:clickVolume";
@@ -12,13 +13,22 @@ const FADE_OUT_SECONDS = 1.0;
 /** How long after the last click the music keeps playing before fading out. */
 const IDLE_FADE_DELAY_SECONDS = 5;
 
+interface Track {
+	url: string;
+	name: string;
+}
+
+/** Every `.mp3` dropped into `public/audio/music/`, in stable (sorted) order. */
+const PLAYLIST: readonly Track[] = musicTracks;
+
 let context: AudioContext | null = null;
 let musicGain: GainNode | null = null;
 let musicVolumeGain: GainNode | null = null;
 let clickVolumeGain: GainNode | null = null;
 
 let musicEl: HTMLAudioElement | null = null;
-let musicStarted = false;
+let sourceConnected = false;
+let currentIndex = -1;
 
 let clickBuffer: AudioBuffer | null = null;
 let clickDecoding: Promise<AudioBuffer> | null = null;
@@ -93,11 +103,75 @@ function ensureContext(): AudioContext {
 
 function ensureMusic(): HTMLAudioElement {
 	if (musicEl === null) {
-		musicEl = new Audio(MUSIC_SRC);
-		musicEl.loop = true;
+		musicEl = new Audio();
 		musicEl.preload = "auto";
+		musicEl.loop = false;
+		musicEl.addEventListener("ended", () => {
+			if (PLAYLIST.length === 0) return;
+			playTrackAt((currentIndex + 1) % PLAYLIST.length, false);
+		});
 	}
 	return musicEl;
+}
+
+/** Wires the media element into the gain graph once (a source can only be set up once). */
+function ensureMusicGraph(): void {
+	const ctx = ensureContext();
+	const el = ensureMusic();
+	if (musicGain !== null && !sourceConnected) {
+		const source = ctx.createMediaElementSource(el);
+		source.connect(musicGain);
+		sourceConnected = true;
+		musicGain.gain.cancelScheduledValues(ctx.currentTime);
+		musicGain.gain.setValueAtTime(0, ctx.currentTime);
+	}
+}
+
+/** The track currently loaded/playing, or `null` before playback starts. */
+function currentTrack(): Track | null {
+	return PLAYLIST[currentIndex] ?? null;
+}
+
+/** Loads the track at `index`, returning false when there is no such track. */
+function setTrack(index: number): boolean {
+	const track = PLAYLIST[index];
+	if (track === undefined) return false;
+	currentIndex = index;
+	ensureMusic().src = track.url;
+	return true;
+}
+
+/** A random starting index for the first track (or -1 when the playlist is empty). */
+function randomStartIndex(): number {
+	if (PLAYLIST.length === 0) return -1;
+	return Math.floor(Math.random() * PLAYLIST.length);
+}
+
+/** Ensures the context is running and the media element is connected to the graph. */
+function ensurePlayback(): void {
+	const ctx = ensureContext();
+	if (ctx.state === "suspended") void ctx.resume();
+	ensureMusicGraph();
+}
+
+/** Loads `index` and plays it; fades music back in only on an explicit user action. */
+function playTrackAt(index: number, fromUser: boolean): void {
+	if (!setTrack(index)) return;
+	ensurePlayback();
+	if (fromUser) markActivity();
+	void ensureMusic().play().catch(() => {
+		// Autoplay blocked or asset missing — ignore.
+	});
+}
+
+/** Starts/resumes the music on a user gesture (picks a random track the first time). */
+function activateMusic(): void {
+	ensurePlayback();
+	if (currentIndex < 0) setTrack(randomStartIndex());
+	markActivity();
+	void ensureMusic().play().catch(() => {
+		// Autoplay blocked or asset missing — ignore.
+	});
 }
 
 /** Smoothly ramps the music envelope to `target` (0 or 1) over `seconds`. */
@@ -119,23 +193,6 @@ function musicShouldPlay(): boolean {
 function syncMusicEnvelope(): void {
 	const target = musicShouldPlay() ? 1 : 0;
 	rampMusicGain(target, target === 1 ? FADE_IN_SECONDS : FADE_OUT_SECONDS);
-}
-
-/** Starts the looping music element once, from silence. */
-function startMusicOnce(): void {
-	if (musicStarted) return;
-	musicStarted = true;
-	const ctx = ensureContext();
-	const el = ensureMusic();
-	if (musicGain !== null) {
-		const source = ctx.createMediaElementSource(el);
-		source.connect(musicGain);
-		musicGain.gain.cancelScheduledValues(ctx.currentTime);
-		musicGain.gain.setValueAtTime(0, ctx.currentTime);
-	}
-	void el.play().catch(() => {
-		// Autoplay blocked or asset missing — ignore.
-	});
 }
 
 /** Resets the idle fade timer so music keeps playing while the user is active. */
@@ -207,12 +264,7 @@ export function initAudio(): void {
  * sample. Called on every click.
  */
 export function onClick(): void {
-	const ctx = ensureContext();
-	if (ctx.state === "suspended") {
-		void ctx.resume();
-	}
-	startMusicOnce();
-	markActivity();
+	activateMusic();
 
 	if (!muted) {
 		void ensureClickBuffer().then((buffer) => {
@@ -223,6 +275,51 @@ export function onClick(): void {
 			source.start();
 		});
 	}
+}
+
+/** Skips to the next track (wrapping around). */
+export function nextTrack(): void {
+	if (PLAYLIST.length === 0) return;
+	playTrackAt((currentIndex + 1) % PLAYLIST.length, true);
+}
+
+/** Skips back to the previous track (wrapping around). */
+export function previousTrack(): void {
+	if (PLAYLIST.length === 0) return;
+	playTrackAt((currentIndex - 1 + PLAYLIST.length) % PLAYLIST.length, true);
+}
+
+/** True while the music element is actively playing (not paused). */
+export function isPlaying(): boolean {
+	return musicEl !== null && !musicEl.paused;
+}
+
+/** Pauses a playing track, or resumes/starts playback when paused. */
+export function togglePlayPause(): void {
+	if (isPlaying()) {
+		ensureMusic().pause();
+	} else {
+		activateMusic();
+	}
+}
+
+/** Display name of the current track ("" before playback starts). */
+export function getTrackName(): string {
+	const track = currentTrack();
+	return track === null ? "" : track.name;
+}
+
+export interface TrackProgress {
+	elapsed: number;
+	duration: number;
+}
+
+/** Playback position (seconds) and total duration of the current track. */
+export function getTrackProgress(): TrackProgress {
+	if (musicEl === null) return { elapsed: 0, duration: 0 };
+	const elapsed = Number.isFinite(musicEl.currentTime) ? musicEl.currentTime : 0;
+	const duration = Number.isFinite(musicEl.duration) ? musicEl.duration : 0;
+	return { elapsed, duration };
 }
 
 export function getMusicVolume(): number {

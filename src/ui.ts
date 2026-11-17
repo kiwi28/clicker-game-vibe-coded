@@ -1093,7 +1093,7 @@ export function showAchievement(achievement: Achievement): void {
 	label.append(title, name);
 	toast.append(icon, label);
 	container.appendChild(toast);
-	window.setTimeout(() => toast.remove(), 3500);
+	window.setTimeout(() => toast.remove(), 4500);
 }
 
 function getToastContainer(): HTMLElement {

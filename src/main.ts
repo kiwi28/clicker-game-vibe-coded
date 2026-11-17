@@ -10,6 +10,7 @@ import {
 	resetState,
 	tick,
 } from "./game";
+import { setupPlayerControls } from "./player";
 import {
 	clearSave,
 	isLoaderDisabled,
@@ -169,6 +170,7 @@ const openDevModal = ui.setupDevMenu({
 
 ui.setupMenu(resetGame, openDevModal);
 setupAudioSettings();
+const updatePlayer = setupPlayerControls();
 
 let clickCount = 0;
 
@@ -227,6 +229,8 @@ function frame(now: number): void {
 		lastSave = now;
 		saveGameState(state);
 	}
+
+	updatePlayer();
 
 	requestAnimationFrame(frame);
 }
