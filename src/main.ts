@@ -174,7 +174,8 @@ const updatePlayer = setupPlayerControls();
 
 let clickCount = 0;
 
-els.momsZone.addEventListener("click", () => {
+/** Applies one mom click (from a mouse click, Space, or Enter). */
+function doMomClick(): void {
 	if (ui.isExploding()) return;
 	// First click unlocks audio + fades music in; every click plays the click
 	// sound and keeps the music alive (it fades out after 5s idle).
@@ -192,6 +193,35 @@ els.momsZone.addEventListener("click", () => {
 	}
 	ui.spawnGain(els.clickZone, gain, gainPosition);
 	ui.render(els, state);
+}
+
+els.momsZone.addEventListener("click", doMomClick);
+
+// Space/Enter always click the mom regardless of which element has focus, so
+// buying an upgrade (which moves focus to its button) never interrupts keyboard
+// spam and Space never scrolls the page. Text entry and open modals are left
+// alone so the user can still type and confirm dialogs.
+function isTextEntry(target: EventTarget | null): boolean {
+	if (!(target instanceof HTMLElement)) return false;
+	if (target.isContentEditable) return true;
+	const tag = target.tagName;
+	return tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+}
+
+function isModalOpen(): boolean {
+	return document.querySelector(".modal:not([hidden])") !== null;
+}
+
+document.addEventListener("keydown", (event) => {
+	if (event.key !== " " && event.key !== "Enter") return;
+	if (isTextEntry(event.target)) return;
+	if (isModalOpen()) return;
+	// Always stop the browser's own Space/Enter behavior (page scroll, button
+	// activation), including while the key is held down.
+	event.preventDefault();
+	// Only the initial press counts — holding the key does not auto-repeat.
+	if (event.repeat) return;
+	doMomClick();
 });
 
 let last = performance.now();
