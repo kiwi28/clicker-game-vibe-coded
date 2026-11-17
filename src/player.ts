@@ -1,7 +1,8 @@
 /**
- * Desktop music-player controls: skip/previous/pause buttons that expand on
- * hover/focus (and briefly whenever a new song starts), plus a scrolling track
- * name and elapsed/total time.
+ * Music-player controls. Desktop shows an expandable player in the header
+ * (skip/previous/pause that expand on hover/focus); mobile shows an
+ * always-expanded player at the bottom of the settings menu. Both share a
+ * scrolling track name and elapsed/total time.
  */
 
 import playIcon from "@tabler/icons/filled/player-play.svg?raw";
@@ -19,7 +20,7 @@ import {
 
 /** Marquee speed in pixels per second. */
 const MARQUEE_PX_PER_SEC = 40;
-/** How long the player stays expanded after hover/focus ends or a song starts. */
+/** How long the desktop player stays expanded after hover/focus or a new song. */
 const COLLAPSE_DELAY_MS = 5000;
 
 function byId(id: string): HTMLElement {
@@ -36,18 +37,36 @@ function formatTime(totalSeconds: number): string {
 	return `${minutes.toString()}:${remainder.toString().padStart(2, "0")}`;
 }
 
+interface PlayerNodes {
+	root: HTMLElement;
+	play: HTMLButtonElement;
+	prev: HTMLButtonElement;
+	next: HTMLButtonElement;
+	marquee: HTMLElement;
+	marqueeTrack: HTMLElement;
+	time: HTMLElement;
+}
+
+/** Reads the DOM nodes for one player, keyed by `idPrefix` (e.g. "player"). */
+function collectNodes(idPrefix: string): PlayerNodes {
+	return {
+		root: byId(idPrefix),
+		play: byId(`${idPrefix}-play`) as HTMLButtonElement,
+		prev: byId(`${idPrefix}-prev`) as HTMLButtonElement,
+		next: byId(`${idPrefix}-next`) as HTMLButtonElement,
+		marquee: byId(`${idPrefix}-marquee`),
+		marqueeTrack: byId(`${idPrefix}-marquee-track`),
+		time: byId(`${idPrefix}-time`),
+	};
+}
+
 /**
- * Wires the player buttons and marquee and returns a per-frame update function
- * that refreshes the play/pause icon, scrolling track name, and time readout.
+ * Wires one player and returns a per-frame update function. When `expandable`
+ * is true (desktop header) the player expands on hover/focus and flashes open
+ * on a new song; when false (mobile menu) it is always expanded.
  */
-export function setupPlayerControls(): () => void {
-	const player = byId("player");
-	const play = byId("player-play") as HTMLButtonElement;
-	const prev = byId("player-prev") as HTMLButtonElement;
-	const next = byId("player-next") as HTMLButtonElement;
-	const marquee = byId("player-marquee");
-	const marqueeTrack = byId("player-marquee-track");
-	const time = byId("player-time");
+function wirePlayer(nodes: PlayerNodes, expandable: boolean): () => void {
+	const { root, play, prev, next, marquee, marqueeTrack, time } = nodes;
 
 	play.innerHTML = playIcon;
 	prev.innerHTML = prevIcon;
@@ -65,10 +84,7 @@ export function setupPlayerControls(): () => void {
 	second.setAttribute("aria-hidden", "true");
 	marqueeTrack.replaceChildren(first, second);
 
-	// --- Expand/collapse state -------------------------------------------------
-	// The `.is-open` class drives the CSS animation. It stays open while the
-	// pointer is inside or a button is focused, and closes 5s after the last
-	// reason goes away (also used to flash the player on a new song).
+	// --- Expand/collapse state (desktop header only) -------------------------
 	let closeTimer: number | null = null;
 	let hovered = false;
 	let focused = false;
@@ -82,11 +98,11 @@ export function setupPlayerControls(): () => void {
 
 	function expand(): void {
 		cancelClose();
-		player.classList.add("is-open");
+		root.classList.add("is-open");
 	}
 
 	function collapse(): void {
-		player.classList.remove("is-open");
+		root.classList.remove("is-open");
 	}
 
 	function scheduleCollapse(): void {
@@ -105,28 +121,31 @@ export function setupPlayerControls(): () => void {
 		}
 	}
 
-	player.addEventListener("mouseenter", () => {
-		hovered = true;
-		refresh();
-	});
-	player.addEventListener("mouseleave", () => {
-		hovered = false;
-		refresh();
-	});
-	player.addEventListener("focusin", () => {
-		focused = true;
-		refresh();
-	});
-	player.addEventListener("focusout", (event) => {
-		const target = event.relatedTarget;
-		if (target instanceof Node && player.contains(target)) return;
-		focused = false;
-		refresh();
-	});
+	if (expandable) {
+		root.addEventListener("mouseenter", () => {
+			hovered = true;
+			refresh();
+		});
+		root.addEventListener("mouseleave", () => {
+			hovered = false;
+			refresh();
+		});
+		root.addEventListener("focusin", () => {
+			focused = true;
+			refresh();
+		});
+		root.addEventListener("focusout", (event) => {
+			const target = event.relatedTarget;
+			if (target instanceof Node && root.contains(target)) return;
+			focused = false;
+			refresh();
+		});
+	}
 
 	let lastTrackName = "";
 	let lastPlaying: boolean | null = null;
 	let lastTimeText = "";
+	let lastMarqueeVisible = false;
 
 	function updateMarquee(): void {
 		// One copy's width (text + trailing gap) decides whether it overflows.
@@ -148,9 +167,22 @@ export function setupPlayerControls(): () => void {
 			first.textContent = name;
 			second.textContent = name;
 			updateMarquee();
-			// Flash the player open when a new track starts (then auto-close).
-			expand();
-			refresh();
+			if (expandable) {
+				// Flash the desktop player open on a new song (then auto-close).
+				expand();
+				refresh();
+			}
+		}
+
+		if (!expandable) {
+			// The mobile player lives inside the settings menu, which is hidden
+			// until opened. Re-measure the marquee once it becomes visible so
+			// long names scroll even when they changed while the menu was closed.
+			const visible = marquee.offsetParent !== null;
+			if (visible && !lastMarqueeVisible) {
+				updateMarquee();
+			}
+			lastMarqueeVisible = visible;
 		}
 
 		const playing = isPlaying();
@@ -169,4 +201,14 @@ export function setupPlayerControls(): () => void {
 	};
 
 	return update;
+}
+
+/** Desktop header player (expands on hover/focus). */
+export function setupPlayerControls(): () => void {
+	return wirePlayer(collectNodes("player"), true);
+}
+
+/** Mobile settings-menu player (always expanded). */
+export function setupMobilePlayerControls(): () => void {
+	return wirePlayer(collectNodes("mobile-player"), false);
 }

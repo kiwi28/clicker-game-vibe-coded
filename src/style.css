@@ -83,8 +83,10 @@ body {
   gap: 8px;
 }
 
-/* Music player is desktop-only for now (mobile UI handled separately). */
-.player {
+/* Music players: the desktop header player (`.player`) and the mobile settings
+   player (`.mobile-player`). Each is shown only by its own media query below. */
+.player,
+.mobile-player {
   display: none;
 }
 
@@ -135,6 +137,13 @@ body {
 
 .menu[hidden] {
   display: none;
+}
+
+.menu__divider {
+  display: none;
+  margin: 4px 2px;
+  border: none;
+  border-top: 1px solid var(--card);
 }
 
 .menu__item {
@@ -1485,40 +1494,110 @@ body {
   }
 }
 
-/* --- Music player (desktop) -----------------------------------------------
-   Anchored to the settings icon. Shows only the skip button; it expands
-   leftward (prev + pause) and downward (track name + timer) on hover/focus,
-   and briefly whenever a new song starts. Collapse is driven by a 5s
-   auto-close timer (see player.ts). */
+/* --- Music player ----------------------------------------------------------
+   Shared styles for both the desktop header player (`.player`) and the mobile
+   settings player (`.mobile-player`). */
+.player__buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.player__btn {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: var(--card);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  color: var(--text);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.player__btn svg {
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+
+.player__btn:hover {
+  filter: brightness(1.12);
+  border-color: var(--accent);
+}
+
+.player__btn:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.player__btn--next {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.player__info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.player__marquee {
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+.player__marquee-track {
+  display: inline-flex;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.player__marquee-track.is-scrolling {
+  animation: player-marquee linear infinite;
+}
+
+.player__marquee-text {
+  padding-right: 48px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gold);
+}
+
+.player__time {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@keyframes player-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Desktop: header player anchored next to the settings icon. Expands on
+   hover/focus and briefly on a new song (see player.ts). */
 @media (min-width: 768px) {
   .player {
     display: flex;
     flex-direction: column;
     align-items: stretch;
     gap: 6px;
-  }
-
-  .player__buttons {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .player__btn {
-    width: 44px;
-    height: 44px;
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    background: var(--card);
-    border: 2px solid transparent;
-    border-radius: 10px;
-    color: var(--text);
-    cursor: pointer;
-    touch-action: manipulation;
   }
 
   .player__btn--reveal {
@@ -1546,32 +1625,7 @@ body {
       visibility 0s;
   }
 
-  .player__btn svg {
-    display: block;
-    width: 22px;
-    height: 22px;
-  }
-
-  .player__btn:hover {
-    filter: brightness(1.12);
-    border-color: var(--accent);
-  }
-
-  .player__btn:focus-visible {
-    outline: 3px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  .player__btn--next {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  .player__info {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+  .player .player__info {
     max-height: 0;
     opacity: 0;
     overflow: hidden;
@@ -1588,54 +1642,39 @@ body {
     transform: translateY(0);
   }
 
-  .player__marquee {
-    position: relative;
+  .player .player__marquee {
     width: 150px;
-    overflow: hidden;
-    white-space: nowrap;
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  }
+}
+
+/* Mobile: settings-menu player. Always expanded, no reveal/fade. */
+@media (max-width: 767px) {
+  .menu {
+    width: min(300px, calc(100vw - 24px));
   }
 
-  .player__marquee-track {
-    display: inline-flex;
-    white-space: nowrap;
-    will-change: transform;
+  .menu__divider {
+    display: block;
   }
 
-  .player__marquee-track.is-scrolling {
-    animation: player-marquee linear infinite;
+  .mobile-player {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding-top: 2px;
   }
 
-  .player__marquee-text {
-    padding-right: 48px;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--gold);
-  }
-
-  .player__time {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-
-  @keyframes player-marquee {
-    from {
-      transform: translateX(0);
-    }
-    to {
-      transform: translateX(-50%);
-    }
+  .mobile-player .player__marquee {
+    flex: 1;
+    min-width: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .player__btn--reveal,
   .player.is-open .player__btn--reveal,
-  .player__info,
+  .player .player__info,
   .player.is-open .player__info {
     transition: none;
   }

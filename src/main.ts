@@ -10,7 +10,7 @@ import {
 	resetState,
 	tick,
 } from "./game";
-import { setupPlayerControls } from "./player";
+import { setupMobilePlayerControls, setupPlayerControls } from "./player";
 import {
 	clearSave,
 	isLoaderDisabled,
@@ -171,6 +171,7 @@ const openDevModal = ui.setupDevMenu({
 ui.setupMenu(resetGame, openDevModal);
 setupAudioSettings();
 const updatePlayer = setupPlayerControls();
+const updateMobilePlayer = setupMobilePlayerControls();
 
 let clickCount = 0;
 
@@ -263,6 +264,7 @@ function frame(now: number): void {
 	}
 
 	updatePlayer();
+	updateMobilePlayer();
 
 	requestAnimationFrame(frame);
 }
