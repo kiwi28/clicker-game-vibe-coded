@@ -22,6 +22,8 @@ export type ClickUpgradeId =
 	| "tiktok"
 	| "apel3";
 
+export type ToolId = "minmax" | "autobuy";
+
 export type AchievementId =
 	| "firstClick"
 	| "first100"
@@ -96,5 +98,9 @@ export interface GameState {
 	totalClicks: number;
 	buildings: Record<BuildingId, number>;
 	upgrades: Record<ClickUpgradeId, number>;
+	/** One-time quality-of-life tools (bought, not repeatable). */
+	tools: Record<ToolId, boolean>;
+	/** Auto-buy toggle: ON (true) by default once the Auto buy tool is owned. */
+	autobuyEnabled: boolean;
 	achievements: AchievementId[];
 }

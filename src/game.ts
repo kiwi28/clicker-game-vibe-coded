@@ -46,6 +46,11 @@ export function createInitialState(): GameState {
 			tiktok: 0,
 			apel3: 0,
 		},
+		tools: {
+			minmax: false,
+			autobuy: false,
+		},
+		autobuyEnabled: true,
 		achievements: [],
 	};
 }
@@ -61,6 +66,8 @@ export function resetState(state: GameState): void {
 	state.totalClicks = fresh.totalClicks;
 	state.buildings = fresh.buildings;
 	state.upgrades = fresh.upgrades;
+	state.tools = fresh.tools;
+	state.autobuyEnabled = fresh.autobuyEnabled;
 	state.achievements = fresh.achievements;
 }
 

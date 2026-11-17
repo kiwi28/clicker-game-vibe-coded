@@ -253,6 +253,8 @@ function frame(now: number): void {
 
 	checkAndShowAchievements();
 
+	ui.toolTick(state, now);
+
 	ui.render(els, state);
 
 	if (now - lastSave >= SAVE_INTERVAL_MS) {

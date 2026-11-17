@@ -1,12 +1,14 @@
 /** Persists the game state to localStorage so it survives refreshes. */
 
 import { isAchievementId } from "./achievements";
+import { TOOLS } from "./tools";
 import { BUILDINGS, CLICK_UPGRADES } from "./upgrades";
 import type {
 	AchievementId,
 	BuildingId,
 	ClickUpgradeId,
 	GameState,
+	ToolId,
 } from "./types";
 
 const SAVE_KEY = "maica-ta-clicker:save:v1";
@@ -120,6 +122,34 @@ function parseGameState(value: unknown): GameState | null {
 		}
 	}
 
+	const toolsRaw = value.tools;
+	const tools: Record<ToolId, boolean> = {
+		minmax: false,
+		autobuy: false,
+	};
+	if (toolsRaw !== undefined) {
+		if (!isRecord(toolsRaw)) return null;
+		for (const tool of TOOLS) {
+			const owned = toolsRaw[tool.id];
+			if (typeof owned === "boolean") {
+				tools[tool.id] = owned;
+			} else if (owned !== undefined) {
+				return null;
+			}
+		}
+	}
+
+	const autobuyEnabledRaw = value.autobuyEnabled;
+	let autobuyEnabled: boolean;
+	if (autobuyEnabledRaw === undefined) {
+		// Legacy saves predate the toggle; default it to ON.
+		autobuyEnabled = true;
+	} else if (typeof autobuyEnabledRaw === "boolean") {
+		autobuyEnabled = autobuyEnabledRaw;
+	} else {
+		return null;
+	}
+
 	const achievementsRaw = value.achievements;
 	let achievements: AchievementId[];
 	if (achievementsRaw === undefined) {
@@ -142,6 +172,8 @@ function parseGameState(value: unknown): GameState | null {
 		totalClicks,
 		buildings,
 		upgrades,
+		tools,
+		autobuyEnabled,
 		achievements,
 	};
 }

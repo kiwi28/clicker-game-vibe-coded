@@ -1,7 +1,12 @@
 /** DOM rendering and updates: HUD, building list, floating text, tabs. */
 
 import { ACHIEVEMENTS } from "./achievements";
-import { bonusMultiplier, getStage, scaleFactor } from "./fatness";
+import {
+	bonusMultiplier,
+	FATNESS_STAGES,
+	getStage,
+	scaleFactor,
+} from "./fatness";
 import { formatMAME, formatNumber } from "./format";
 import {
 	buyBuilding,
@@ -21,6 +26,13 @@ import {
 	setDevEnabled,
 	setLoaderDisabled,
 } from "./storage";
+import {
+	bestAffordableClickUpgrade,
+	buyTool,
+	saveForClickUpgrade,
+	TOOLS,
+	toolLockReason,
+} from "./tools";
 import { BUILDINGS, CLICK_UPGRADES } from "./upgrades";
 import type {
 	Achievement,
@@ -28,6 +40,7 @@ import type {
 	BuildingId,
 	ClickUpgradeId,
 	GameState,
+	ToolId,
 } from "./types";
 
 const ROASTS: readonly string[] = [
@@ -90,11 +103,13 @@ export interface Elements {
 	momCluster: HTMLElement;
 	momsZone: HTMLElement;
 	stageLabel: HTMLElement;
+	stageCount: HTMLElement;
 	stageBonus: HTMLElement;
 	clickZone: HTMLElement;
 	buildingList: HTMLElement;
 	buildingsTotal: HTMLElement;
 	upgradeList: HTMLElement;
+	toolList: HTMLElement;
 	achievementList: HTMLElement;
 }
 
@@ -112,6 +127,14 @@ interface UpgradeView {
 	buyMax: HTMLButtonElement;
 	owned: HTMLElement;
 	cost: HTMLElement;
+	badge: HTMLElement;
+}
+
+interface ToolView {
+	row: HTMLElement;
+	buy: HTMLButtonElement;
+	hint: HTMLElement;
+	toggle: HTMLButtonElement | null;
 }
 
 interface AchievementView {
@@ -126,6 +149,7 @@ export interface FloatPoint {
 
 const buildingViews = new Map<BuildingId, BuildingView>();
 const upgradeViews = new Map<ClickUpgradeId, UpgradeView>();
+const toolViews = new Map<ToolId, ToolView>();
 const achievementViews = new Map<AchievementId, AchievementView>();
 
 function byId(id: string): HTMLElement {
@@ -145,11 +169,13 @@ function queryElements(): Elements {
 		momCluster: byId("mom-cluster"),
 		momsZone: byId("click-zone-moms"),
 		stageLabel: byId("stage-label"),
+		stageCount: byId("stage-count"),
 		stageBonus: byId("stage-bonus"),
 		clickZone: byId("click-zone"),
 		buildingList: byId("building-list"),
 		buildingsTotal: byId("buildings-total"),
 		upgradeList: byId("upgrade-list"),
+		toolList: byId("tool-list"),
 		achievementList: byId("achievement-list"),
 	};
 }
@@ -160,6 +186,7 @@ export function init(state: GameState): Elements {
 	applyClickZonePattern(els.clickZone);
 	buildBuildingList(els, state);
 	buildUpgradeList(els, state);
+	buildToolList(els, state);
 	buildAchievementList(els);
 	setupTabs();
 	setupPanel();
@@ -174,6 +201,7 @@ export function render(els: Elements, state: GameState): void {
 	renderBuildings(state);
 	renderBuildingsTotal(els, state);
 	renderUpgrades(state);
+	renderTools(state);
 	renderAchievements(state);
 }
 
@@ -195,6 +223,7 @@ function renderHud(els: Elements, state: GameState): void {
 	els.momEmoji.textContent = isExploding() ? EXPLOSION_EMOJI : stage.emoji;
 	els.stageLabel.textContent =
 		state.moms > 1 ? `${stage.title} x${state.moms}` : stage.title;
+	els.stageCount.textContent = `Fatness Stage ${stage.stage + 1}/${FATNESS_STAGES.length}`;
 	els.stageBonus.textContent = `+${Math.round((bonus - 1) * 100)}% MAME / click`;
 }
 
@@ -530,6 +559,10 @@ function buildUpgradeList(els: Elements, state: GameState): void {
 		const row = document.createElement("div");
 		row.className = "upgrade";
 
+		const badge = document.createElement("span");
+		badge.className = "upgrade__badge";
+		badge.hidden = true;
+
 		const title = document.createElement("span");
 		title.className = "upgrade__title";
 
@@ -569,6 +602,7 @@ function buildUpgradeList(els: Elements, state: GameState): void {
 		buy.disabled = true;
 		buy.addEventListener("click", () => {
 			buyClickUpgrade(upgrade.id, state);
+			onUpgradePurchased(state);
 			render(els, state);
 		});
 
@@ -579,13 +613,14 @@ function buildUpgradeList(els: Elements, state: GameState): void {
 		buyMax.disabled = true;
 		buyMax.addEventListener("click", () => {
 			buyMaxClickUpgrade(upgrade.id, state);
+			onUpgradePurchased(state);
 			render(els, state);
 		});
 
 		actions.append(buy, buyMax);
-		row.append(title, bottom, actions);
+		row.append(title, bottom, actions, badge);
 		els.upgradeList.appendChild(row);
-		upgradeViews.set(upgrade.id, { row, buy, buyMax, owned, cost });
+		upgradeViews.set(upgrade.id, { row, buy, buyMax, owned, cost, badge });
 	}
 }
 
@@ -603,6 +638,200 @@ function renderUpgrades(state: GameState): void {
 		view.buyMax.textContent =
 			affordable > 0 ? `Buy Max (${affordable})` : "Buy Max";
 	}
+}
+
+function buildToolList(els: Elements, state: GameState): void {
+	for (const tool of TOOLS) {
+		const row = document.createElement("div");
+		row.className = "tool";
+
+		const icon = document.createElement("span");
+		icon.className = "tool__icon";
+		for (const emoji of tool.icon) {
+			const glyph = document.createElement("span");
+			glyph.className = "tool__icon-emoji";
+			glyph.textContent = emoji;
+			icon.appendChild(glyph);
+		}
+
+		const text = document.createElement("div");
+		text.className = "tool__text";
+
+		const name = document.createElement("span");
+		name.className = "tool__name";
+		name.textContent = tool.name;
+
+		const description = document.createElement("span");
+		description.className = "tool__desc";
+		description.textContent = tool.description;
+
+		const hint = document.createElement("span");
+		hint.className = "tool__hint";
+		hint.hidden = true;
+
+		text.append(name, description, hint);
+
+		const buy = document.createElement("button");
+		buy.type = "button";
+		buy.className = "tool__buy";
+		buy.textContent = "Buy";
+		buy.disabled = true;
+		buy.addEventListener("click", () => {
+			buyTool(tool.id, state, getStage(state.kg).stage);
+			render(els, state);
+		});
+
+		let toggle: HTMLButtonElement | null = null;
+		if (tool.id === "autobuy") {
+			toggle = document.createElement("button");
+			toggle.type = "button";
+			toggle.className = "tool__toggle";
+			toggle.hidden = true;
+			toggle.addEventListener("click", () => {
+				state.autobuyEnabled = !state.autobuyEnabled;
+				render(els, state);
+			});
+		}
+
+		row.append(icon, text, buy);
+		if (toggle !== null) row.appendChild(toggle);
+		els.toolList.appendChild(row);
+		toolViews.set(tool.id, { row, buy, hint, toggle });
+	}
+}
+
+function renderTools(state: GameState): void {
+	const stage = getStage(state.kg).stage;
+	for (const tool of TOOLS) {
+		const view = toolViews.get(tool.id);
+		if (view === undefined) continue;
+		const owned = state.tools[tool.id];
+		view.row.classList.toggle("is-owned", owned);
+
+		if (owned) {
+			view.buy.hidden = true;
+			if (view.toggle !== null) {
+				view.toggle.hidden = false;
+				view.toggle.textContent = state.autobuyEnabled ? "ON" : "OFF";
+				view.toggle.classList.toggle("is-on", state.autobuyEnabled);
+				view.toggle.setAttribute("aria-pressed", String(state.autobuyEnabled));
+			}
+			view.hint.hidden = false;
+			view.hint.textContent = "✓ Owned";
+			view.hint.classList.remove("is-locked");
+			continue;
+		}
+
+		view.buy.hidden = false;
+		if (view.toggle !== null) view.toggle.hidden = true;
+		view.buy.textContent = `Buy · ${formatNumber(tool.cost)} MAME`;
+		const lockReason = toolLockReason(tool, state, stage);
+		view.buy.disabled = lockReason !== null || state.MAME < tool.cost;
+		if (lockReason !== null) {
+			view.hint.hidden = false;
+			view.hint.textContent = lockReason;
+			view.hint.classList.add("is-locked");
+		} else {
+			view.hint.hidden = true;
+			view.hint.textContent = "";
+			view.hint.classList.remove("is-locked");
+		}
+	}
+}
+
+// --- Min/Max highlight & auto-buy -------------------------------------
+// Both tools share one once-per-second cadence. A click-upgrade purchase
+// refreshes immediately and restarts the countdown, so the highlight (and the
+// auto-buyer) can never change more often than once per second.
+
+/** How often the best upgrade is re-evaluated. */
+const TOOL_TICK_MS = 1000;
+/** Timestamp (ms) of the last tool tick; 0 forces a tick on the first frame. */
+let lastToolTickAt = 0;
+/** The click-upgrade id currently wearing the "Buy now" highlight, if any. */
+let highlightedId: ClickUpgradeId | null = null;
+/** The click-upgrade id currently wearing the "Save for" marker, if any. */
+let savedForId: ClickUpgradeId | null = null;
+
+function clearHighlight(): void {
+	if (highlightedId === null) return;
+	const view = upgradeViews.get(highlightedId);
+	if (view !== undefined) {
+		view.row.classList.remove("is-best");
+		view.badge.hidden = true;
+	}
+	highlightedId = null;
+}
+
+function setHighlight(id: ClickUpgradeId | null): void {
+	if (id === highlightedId) return;
+	clearHighlight();
+	if (id === null) return;
+	const view = upgradeViews.get(id);
+	if (view === undefined) return;
+	view.row.classList.add("is-best");
+	view.badge.textContent = "Buy now";
+	view.badge.hidden = false;
+	highlightedId = id;
+}
+
+function clearSaveFor(): void {
+	if (savedForId === null) return;
+	const view = upgradeViews.get(savedForId);
+	if (view !== undefined) {
+		view.row.classList.remove("is-save");
+		view.badge.hidden = true;
+	}
+	savedForId = null;
+}
+
+function setSaveFor(id: ClickUpgradeId | null): void {
+	if (id === savedForId) return;
+	clearSaveFor();
+	if (id === null) return;
+	const view = upgradeViews.get(id);
+	if (view === undefined) return;
+	view.row.classList.add("is-save");
+	view.badge.textContent = "Save for";
+	view.badge.hidden = false;
+	savedForId = id;
+}
+
+/** Recomputes and applies the "Buy now" highlight and "Save for" marker. */
+function recalcBest(state: GameState): void {
+	if (!state.tools.minmax) {
+		clearHighlight();
+		clearSaveFor();
+		return;
+	}
+	setHighlight(bestAffordableClickUpgrade(state));
+	setSaveFor(saveForClickUpgrade(state));
+}
+
+/** Performs one tool tick: auto-buy the best upgrade, then refresh highlight. */
+function doToolTick(state: GameState): void {
+	if (state.tools.autobuy && state.autobuyEnabled) {
+		const best = bestAffordableClickUpgrade(state);
+		if (best !== null) buyClickUpgrade(best, state);
+	}
+	recalcBest(state);
+}
+
+/**
+ * Called every frame. Re-evaluates the tools at most once per second, so the
+ * highlighted item cannot change more often than once per second.
+ */
+export function toolTick(state: GameState, now: number): void {
+	if (now - lastToolTickAt >= TOOL_TICK_MS) {
+		lastToolTickAt = now;
+		doToolTick(state);
+	}
+}
+
+/** Call after any click-upgrade purchase: refresh now, restart the countdown. */
+function onUpgradePurchased(state: GameState): void {
+	lastToolTickAt = performance.now();
+	recalcBest(state);
 }
 
 function buildAchievementList(els: Elements): void {

@@ -548,11 +548,18 @@ body {
 }
 
 .stage-label {
-  /* margin: 92px 0 0; */
+  margin: 0;
   font-size: 14px;
   font-weight: 800;
   color: var(--text);
   text-align: center;
+}
+
+.stage-count {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
 }
 
 .stage-bonus {
@@ -811,6 +818,36 @@ body {
   background: var(--panel);
 }
 
+/* Catchy animated gradient background for the Tools tab. */
+.tab[data-tab='tools'] {
+  background: repeating-linear-gradient(
+      90deg,
+      #a3e635 0,
+      #f5c542 48px,
+      #3ecf6e 96px,
+      #42a5f5 144px,
+      #a3e635 192px
+    );
+  background-size: 192px 100%;
+  border-color: transparent;
+  color: #0c1410;
+  animation: tools-tab-shift 2.2s linear infinite;
+}
+
+.tab[data-tab='tools'].is-active {
+  border-color: #ffffff;
+  box-shadow: 0 0 14px rgba(163, 230, 53, 0.45);
+}
+
+@keyframes tools-tab-shift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 192px 0;
+  }
+}
+
 .tab-panel {
   display: none;
   padding: 12px;
@@ -963,6 +1000,7 @@ body {
   flex-direction: column;
   gap: 3px;
   width: 100%;
+  position: relative;
   padding: 10px 12px;
   background: var(--card);
   border: 2px solid transparent;
@@ -1067,6 +1105,63 @@ body {
   outline-offset: 2px;
 }
 
+/* Min/Max helper highlight: a moving gradient border on the best-value upgrade. */
+.upgrade.is-best {
+  background:
+    linear-gradient(var(--card), var(--card)) padding-box,
+    repeating-linear-gradient(
+        90deg,
+        var(--accent) 0,
+        var(--gold) 48px,
+        var(--good) 96px,
+        var(--buy-max) 144px,
+        var(--accent) 192px
+      )
+      border-box;
+  background-size: 100% 100%, 192px 100%;
+  box-shadow: 0 0 14px rgba(163, 230, 53, 0.3);
+  animation: upgrade-best-border 1.9s linear infinite;
+}
+
+@keyframes upgrade-best-border {
+  from {
+    background-position: 0 0, 0 0;
+  }
+  to {
+    background-position: 0 0, 192px 0;
+  }
+}
+
+/* MUI-style label that notches the top border of a highlighted card. */
+.upgrade__badge {
+  position: absolute;
+  top: -0.6em;
+  left: 12px;
+  padding: 0 6px;
+  background: var(--card);
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.upgrade.is-best .upgrade__badge {
+  color: var(--gold);
+}
+
+/* "Save for" marker: a static dashed border, distinct from the animated one. */
+.upgrade.is-save {
+  border: 2px dashed var(--buy-max);
+  box-shadow: 0 0 10px rgba(58, 160, 245, 0.25);
+}
+
+.upgrade.is-save .upgrade__badge {
+  color: var(--buy-max);
+}
+
 .achievement-list {
   display: flex;
   flex-direction: column;
@@ -1116,6 +1211,136 @@ body {
 .achievement__desc {
   font-size: 12px;
   color: var(--muted);
+}
+
+.tool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tool {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--card);
+  border: 2px solid transparent;
+  border-radius: 10px;
+  color: var(--text);
+  text-align: left;
+}
+
+.tool.is-owned {
+  border-color: var(--good);
+}
+
+.tool__icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.tool__icon-emoji {
+  font-size: 27px;
+  line-height: 1;
+}
+
+.tool__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.tool__name {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.tool__desc {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.tool__hint {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--good);
+}
+
+.tool__hint.is-locked {
+  font-size: 13px;
+  color: var(--accent);
+}
+
+.tool__buy {
+  flex-shrink: 0;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: var(--buy);
+  color: #0c1410;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: filter 0.12s ease, transform 0.12s ease;
+}
+
+.tool__buy:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+.tool__buy:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.tool__buy:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tool__toggle {
+  flex-shrink: 0;
+  min-width: 48px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: filter 0.12s ease, transform 0.12s ease, background 0.12s ease,
+    color 0.12s ease, border-color 0.12s ease;
+}
+
+.tool__toggle.is-on {
+  background: var(--buy);
+  color: #0c1410;
+}
+
+.tool__toggle:not(.is-on) {
+  background: var(--panel);
+  color: var(--muted);
+  border-color: var(--muted);
+}
+
+.tool__toggle:hover {
+  filter: brightness(1.12);
+}
+
+.tool__toggle:active {
+  transform: scale(0.97);
 }
 
 .achievement-toasts {
@@ -1191,6 +1416,12 @@ body {
     animation: none;
   }
   .click-zone {
+    animation: none;
+  }
+  .upgrade.is-best {
+    animation: none;
+  }
+  .tab[data-tab='tools'] {
     animation: none;
   }
   .mom:active .mom__emoji {
