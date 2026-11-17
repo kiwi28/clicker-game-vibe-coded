@@ -27,6 +27,7 @@ export const FATNESS_STAGES: readonly [FatnessStage, ...FatnessStage[]] = [
 	{ stage: 8, minKg: 100000, title: "Gravitational pull", emoji: "🌍" },
 	{ stage: 9, minKg: 500000, title: "Own orbit", emoji: "🪐" },
 	{ stage: 10, minKg: 10000000, title: "Maica-ta", emoji: "🍔" },
+	{ stage: 11, minKg: 100000000, title: "Maica-ta", emoji: "🌌" },
 ];
 
 /** Highest stage whose minKg ≤ kg (clamps to stage 0 for negative kg). */

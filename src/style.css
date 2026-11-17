@@ -212,6 +212,10 @@ body {
   text-align: center;
 }
 
+.modal__dialog--wide {
+  max-width: 380px;
+}
+
 .modal__title {
   margin: 0 0 8px;
   font-size: 20px;
@@ -628,13 +632,23 @@ body {
   max-height: 46dvh;
 }
 
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  margin-bottom: 10px;
+  width: 100%;
+  flex-wrap: nowrap;
+}
+
 .panel-toggle {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  align-self: center;
   flex-shrink: 0;
-  margin-bottom: 10px;
   padding: 8px 18px;
   background: linear-gradient(135deg, var(--accent), var(--buy));
   color: #0c1410;
@@ -662,6 +676,45 @@ body {
 .panel-toggle:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
+}
+
+.achievements-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, var(--gold), #ff9d2e);
+  color: #0c1410;
+  border: none;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  cursor: pointer;
+  touch-action: manipulation;
+  box-shadow: 0 4px 16px rgba(245, 197, 66, 0.28);
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+
+.achievements-button:hover {
+  filter: brightness(1.07);
+}
+
+.achievements-button:active {
+  transform: scale(0.96);
+}
+
+.achievements-button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.achievements-button__icon {
+  font-size: 16px;
+  line-height: 1;
 }
 
 .panel-toggle__label {
@@ -699,6 +752,10 @@ body {
 }
 
 .tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
   flex: 1;
   padding: 10px 6px;
   background: var(--card);
@@ -712,6 +769,11 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   touch-action: manipulation;
+}
+
+.tab__icon {
+  font-size: 15px;
+  line-height: 1;
 }
 
 .tab.is-active {
@@ -980,6 +1042,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  max-height: 55vh;
+  overflow-y: auto;
+  margin-bottom: 18px;
 }
 
 .achievement {
@@ -1140,6 +1205,10 @@ body {
   }
   .panel-toggle {
     display: none;
+  }
+  .achievements-button {
+    flex: 1;
+    justify-content: center;
   }
   .panel.is-collapsed .panel-body {
     display: flex;

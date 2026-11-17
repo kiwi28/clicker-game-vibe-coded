@@ -163,6 +163,7 @@ export function init(state: GameState): Elements {
 	buildAchievementList(els);
 	setupTabs();
 	setupPanel();
+	setupAchievementsModal();
 	setupMomResize(els);
 	return els;
 }
@@ -664,6 +665,31 @@ function setupPanel(): void {
 	toggle.addEventListener("click", () => {
 		const collapsed = panel.classList.toggle("is-collapsed");
 		toggle.setAttribute("aria-expanded", String(!collapsed));
+	});
+}
+
+/** Opens/closes the achievements modal triggered by the dedicated button. */
+function setupAchievementsModal(): void {
+	const modal = byId("achievements-modal");
+	const button = byId("achievements-button");
+	const closeButton = byId("achievements-close") as HTMLButtonElement;
+
+	const closeModal = (): void => {
+		modal.hidden = true;
+	};
+
+	button.addEventListener("click", () => {
+		modal.hidden = false;
+		closeButton.focus();
+	});
+	closeButton.addEventListener("click", closeModal);
+
+	modal.addEventListener("click", (event) => {
+		if (event.target === modal) closeModal();
+	});
+
+	document.addEventListener("keydown", (event) => {
+		if (event.key === "Escape" && !modal.hidden) closeModal();
 	});
 }
 

@@ -1,7 +1,7 @@
 /**
  * Achievement definitions and unlock logic. Each achievement is a one-time
  * milestone; once met it is added to `GameState.achievements`, shown in the
- * Achievements tab, and announced with a pop-up toast.
+ * Achievements modal, and announced with a pop-up toast.
  */
 
 import { BUILDINGS, CLICK_UPGRADES } from "./upgrades";
