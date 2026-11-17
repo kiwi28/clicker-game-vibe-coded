@@ -16,7 +16,25 @@ function ownsAnyBuilding(state: GameState): boolean {
 }
 
 function ownsAllClickUpgrades(state: GameState): boolean {
-	return CLICK_UPGRADES.every((upgrade) => (state.upgrades[upgrade.id] ?? 0) > 0);
+	return CLICK_UPGRADES.every(
+		(upgrade) => (state.upgrades[upgrade.id] ?? 0) > 0,
+	);
+}
+
+/** Total buildings owned across every building type. */
+function totalBuildings(state: GameState): number {
+	return BUILDINGS.reduce(
+		(sum, building) => sum + (state.buildings[building.id] ?? 0),
+		0,
+	);
+}
+
+/** Total click upgrades owned across every upgrade type. */
+function totalClickUpgrades(state: GameState): number {
+	return CLICK_UPGRADES.reduce(
+		(sum, upgrade) => sum + (state.upgrades[upgrade.id] ?? 0),
+		0,
+	);
 }
 
 export const ACHIEVEMENTS: readonly AchievementDef[] = [
@@ -29,8 +47,8 @@ export const ACHIEVEMENTS: readonly AchievementDef[] = [
 	},
 	{
 		id: "first100",
-		name: "100 Mame",
-		description: "Earn 100 Mame in total",
+		name: "100 MAME",
+		description: "Earn 100 MAME in total",
 		icon: "💯",
 		isUnlocked: (state) => state.totalEarned >= 100,
 	},
@@ -71,8 +89,8 @@ export const ACHIEVEMENTS: readonly AchievementDef[] = [
 	},
 	{
 		id: "million",
-		name: "One Million Mame",
-		description: "Earn 1,000,000 Mame in total",
+		name: "One Million MAME",
+		description: "Earn 1,000,000 MAME in total",
 		icon: "💰",
 		isUnlocked: (state) => state.totalEarned >= 1_000_000,
 	},
@@ -89,6 +107,160 @@ export const ACHIEVEMENTS: readonly AchievementDef[] = [
 		description: "Own at least one of every click upgrade",
 		icon: "👑",
 		isUnlocked: ownsAllClickUpgrades,
+	},
+	// Click milestones.
+	{
+		id: "clicks100",
+		name: "Click Machine",
+		description: "Click your mom 100 times",
+		icon: "🖱️",
+		isUnlocked: (state) => state.totalClicks >= 100,
+	},
+	{
+		id: "clicks1000",
+		name: "Carpal Tunnel",
+		description: "Click your mom 1,000 times",
+		icon: "🦴",
+		isUnlocked: (state) => state.totalClicks >= 1_000,
+	},
+	{
+		id: "clicks10000",
+		name: "Click Fiend",
+		description: "Click your mom 10,000 times",
+		icon: "🔥",
+		isUnlocked: (state) => state.totalClicks >= 10_000,
+	},
+	// Lifetime MAME milestones.
+	{
+		id: "billion",
+		name: "Billionaire",
+		description: "Earn 1,000,000,000 MAME in total",
+		icon: "🤑",
+		isUnlocked: (state) => state.totalEarned >= 1_000_000_000,
+	},
+	{
+		id: "trillion",
+		name: "Trillionaire",
+		description: "Earn 1,000,000,000,000 MAME in total",
+		icon: "💎",
+		isUnlocked: (state) => state.totalEarned >= 1_000_000_000_000,
+	},
+	// Weight / fatness-stage milestones.
+	{
+		id: "kg10",
+		name: "Well-fed",
+		description: "Reach 10 kg",
+		icon: "👵",
+		isUnlocked: (state) => state.kg >= 10,
+	},
+	{
+		id: "kg600",
+		name: "Absolute Unit",
+		description: "Reach 600 kg",
+		icon: "🦛",
+		isUnlocked: (state) => state.kg >= 600,
+	},
+	{
+		id: "kg2000",
+		name: "Local Legend",
+		description: "Reach 2,000 kg",
+		icon: "🐘",
+		isUnlocked: (state) => state.kg >= 2_000,
+	},
+	{
+		id: "kg100000",
+		name: "Gravitational Pull",
+		description: "Reach 100,000 kg",
+		icon: "🌍",
+		isUnlocked: (state) => state.kg >= 100_000,
+	},
+	{
+		id: "kg10000000",
+		name: "Maica-ta",
+		description: "Reach 10,000,000 kg",
+		icon: "🍔",
+		isUnlocked: (state) => state.kg >= 10_000_000,
+	},
+	// Building milestones.
+	{
+		id: "gym10",
+		name: "Gym Rat",
+		description: "Own 10 Gym buildings",
+		icon: "🏋️",
+		isUnlocked: (state) => state.buildings.gym >= 10,
+	},
+	{
+		id: "bus1",
+		name: "Full Bus",
+		description: "Own a bus building",
+		icon: "🚌",
+		isUnlocked: (state) => state.buildings.bus >= 1,
+	},
+	{
+		id: "buildings100",
+		name: "Real Estate Mogul",
+		description: "Own 100 buildings in total",
+		icon: "🏗️",
+		isUnlocked: (state) => totalBuildings(state) >= 100,
+	},
+	// Click-upgrade milestones.
+	{
+		id: "slap10",
+		name: "Slap Happy",
+		description: "Own 10 Slap upgrades",
+		icon: "👋",
+		isUnlocked: (state) => state.upgrades.slap >= 10,
+	},
+	{
+		id: "tiktok1",
+		name: "Gone Viral",
+		description: "Own a Maică-ta pe TikTok upgrade",
+		icon: "🎵",
+		isUnlocked: (state) => state.upgrades.tiktok >= 1,
+	},
+	{
+		id: "upgrades50",
+		name: "Upgrade Addict",
+		description: "Own 50 click upgrades in total",
+		icon: "🧪",
+		isUnlocked: (state) => totalClickUpgrades(state) >= 50,
+	},
+	// Prestige milestones.
+	{
+		id: "moms2",
+		name: "Double Trouble",
+		description: "Reach 2 moms",
+		icon: "👯",
+		isUnlocked: (state) => state.moms >= 2,
+	},
+	{
+		id: "moms5",
+		name: "Mom Squad",
+		description: "Reach 5 moms",
+		icon: "🧑‍🤝‍🧑",
+		isUnlocked: (state) => state.moms >= 5,
+	},
+	{
+		id: "moms10",
+		name: "Mom Army",
+		description: "Reach 10 moms",
+		icon: "🪖",
+		isUnlocked: (state) => state.moms >= 10,
+	},
+	// Passive-income milestones.
+	{
+		id: "mps100",
+		name: "Idle Hands",
+		description: "Reach 100 MAME per second",
+		icon: "⏰",
+		isUnlocked: (state) => state.MAMEPerSec >= 100,
+	},
+	{
+		id: "mps10000",
+		name: "AFK Empire",
+		description: "Reach 10,000 MAME per second",
+		icon: "🏰",
+		isUnlocked: (state) => state.MAMEPerSec >= 10_000,
 	},
 ];
 

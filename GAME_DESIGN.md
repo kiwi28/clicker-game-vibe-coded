@@ -7,7 +7,7 @@
 
 ## 1. One-liner
 
-Click "maică-ta" to earn **Mame**, spend them on increasingly absurd upgrades, and
+Click "maică-ta" to earn **MAME**, spend them on increasingly absurd upgrades, and
 watch a tiny pixel mom grow into a comedy empire.
 
 ## 2. Genre & scope
@@ -22,34 +22,35 @@ watch a tiny pixel mom grow into a comedy empire.
 
 - **UI text is English** — every button, label, tab, description, tooltip,
   achievement name, and in-game message is written in English.
-- **Exempt from English:** the currency name **`Mame`** and the **roast lines**
+- **Exempt from English:** the currency name **`MAME`** and the **roast lines**
   (the floating "maică-ta" speech bubbles) stay in Romanian — they are the joke.
 - The document `lang` attribute is `en`.
 
 ## 3. Core loop (the 10-second summary)
 
 ```
-CLICK "maică-ta" ──▶ earn Mame ──▶ buy Upgrades ──▶ more Mame per second ──▶
+CLICK "maică-ta" ──▶ earn MAME ──▶ buy Upgrades ──▶ more MAME per second ──▶
                                             │
                                             └──▶ unlock achievements & bigger jokes
 ```
 
 The loop:
-1. **Click** the mom avatar → +1 Mame (plus a random roast speech bubble)
-2. **Spend** Mame on upgrades → passive Mame/sec
+
+1. **Click** the mom avatar → +1 MAME (plus a random roast speech bubble)
+2. **Spend** MAME on upgrades → passive MAME/sec
 3. **Scale** — upgrades multiply each other, numbers get silly
 4. **Chase** achievements and the occasional rare event (Golden Maică-ta)
 
-## 4. Currency: "Mame"
+## 4. Currency: "MAME"
 
-- **Name:** `Mame` (singular `Mamă`, but displayed as `Mame` everywhere for simplicity)
+- **Name:** `MAME` (singular `Mamă`, but displayed as `MAME` everywhere for simplicity)
 - **Symbol:** a tiny mom emoji or `M`
 - **Display rules:**
-  - `< 1,000` → show raw number (`847 Mame`)
+  - `< 1,000` → show raw number (`847 MAME`)
   - `>= 1,000` → abbreviate: `1.2K`, `3.4M`, `1.1B`, `2.9T` (K/M/B/T)
 - **Two income sources:**
   1. **Click income** — `+1` base per click, multiplied by click upgrades
-  2. **Passive income** — `Mame/sec` from owned upgrades, ticks every 0.1s
+  2. **Passive income** — `MAME/sec` from owned upgrades, ticks every 0.1s
 - **No "prestige" in v1** — keep the numbers bounded so a friend can "finish" it.
 
 ## 5. Clicking & feel
@@ -57,16 +58,16 @@ The loop:
 - Clickable target: pixel-art **mom avatar** at the center of the screen.
 - Each click:
   - floats a **roast bubble** upward from the click point (random from a pool)
-  - shows a `+N Mame` popup
+  - shows a `+N MAME` popup
   - plays a tiny "bonk" or wobble animation on the avatar
 - **Roast bubble pool** (rotate through these):
-  - *"maică-ta"*
-  - *"da' ce zici mă"*
-  - *"auzi la el"*
-  - *"câte kg?"*
-  - *"stai să sun pe maică-ta"*
-  - *"i-a sunat telefonul"*
-  - *"se aude de la parter"*
+  - _"maică-ta"_
+  - _"da' ce zici mă"_
+  - _"auzi la el"_
+  - _"câte kg?"_
+  - _"stai să sun pe maică-ta"_
+  - _"i-a sunat telefonul"_
+  - _"se aude de la parter"_
 - **Weight gag:** a persistent "kg" counter on the mom. Each click she gains
   weight, and her avatar grows and changes per fatness stage — see
   [Fatness stages](#fatness-stages).
@@ -76,18 +77,18 @@ The loop:
 `kg` drives a 10-stage fatness progression (stages 0–9). Each stage changes the
 mom's emoji, makes it bigger, and grants a compounding click bonus.
 
-| Stage | kg needed | Title | Emoji |
-|------:|----------:|-------|-------|
-| 0 | 0 | Regular mom | 🧓 |
-| 1 | 10 | Well-fed | 👵 |
-| 2 | 50 | Chunky | 🐷 |
-| 3 | 150 | Hefty | 🐮 |
-| 4 | 400 | Absolute unit | 🦛 |
-| 5 | 1,000 | Local legend | 🐘 |
-| 6 | 2,500 | Two seats on the bus | 🦣 |
-| 7 | 6,000 | The lift beeps | 🐋 |
-| 8 | 15,000 | Gravitational pull | 🌍 |
-| 9 | 40,000 | Own orbit | 🪐 |
+| Stage | kg needed | Title                | Emoji |
+| ----: | --------: | -------------------- | ----- |
+|     0 |         0 | Regular mom          | 🧓    |
+|     1 |        10 | Well-fed             | 👵    |
+|     2 |        50 | Chunky               | 🐷    |
+|     3 |       150 | Hefty                | 🐮    |
+|     4 |       400 | Absolute unit        | 🦛    |
+|     5 |     1,000 | Local legend         | 🐘    |
+|     6 |     2,500 | Two seats on the bus | 🦣    |
+|     7 |     6,000 | The lift beeps       | 🐋    |
+|     8 |    15,000 | Gravitational pull   | 🌍    |
+|     9 |    40,000 | Own orbit            | 🪐    |
 
 **Formulas**
 
@@ -119,30 +120,31 @@ Click upgrades work like buildings: each purchase adds its `effect` to click
 power, and its cost scales ×1.15 per purchase. Buying more of the same upgrade
 keeps stacking click power forever.
 
-| # | Name | +click / unit | Cost (base) |
-|---|------|--------------:|-------------|
-| 1 | Slap | +1 | 15 Mame |
-| 2 | Palmă dublă | +2 | 100 Mame |
-| 3 | Papuc | +8 | 1,100 Mame |
-| 4 | Roast Legend | +25 | 12,000 Mame |
-| 5 | Apel video cu maică-ta | +100 | 130,000 Mame |
-| 6 | Cureaua | +400 | 1,400,000 Mame |
-| 7 | Bârfă la poartă | +1,600 | 20,000,000 Mame |
-| 8 | Scandal la scară | +6,500 | 330,000,000 Mame |
-| 9 | Maică-ta pe TikTok | +26,000 | 5,000,000,000 Mame |
-| 10 | Apel de la 3 noaptea | +100,000 | 90,000,000,000 Mame |
+| #   | Name                   | +click / unit | Cost (base)         |
+| --- | ---------------------- | ------------: | ------------------- |
+| 1   | Slap                   |            +1 | 15 MAME             |
+| 2   | Palmă dublă            |            +2 | 100 MAME            |
+| 3   | Papuc                  |            +8 | 1,100 MAME          |
+| 4   | Roast Legend           |           +25 | 12,000 MAME         |
+| 5   | Apel video cu maică-ta |          +100 | 130,000 MAME        |
+| 6   | Cureaua                |          +400 | 1,400,000 MAME      |
+| 7   | Bârfă la poartă        |        +1,600 | 20,000,000 MAME     |
+| 8   | Scandal la scară       |        +6,500 | 330,000,000 MAME    |
+| 9   | Maică-ta pe TikTok     |       +26,000 | 5,000,000,000 MAME  |
+| 10  | Apel de la 3 noaptea   |      +100,000 | 90,000,000,000 MAME |
 
-### 6.2 Passive upgrades (Mame/sec generators)
-| # | Building | Joke | Mame/sec |
-|---|----------|------|----------|
-| 1 | Maică-ta la sală | she's working out | +1 |
-| 2 | Maică-ta la bingo | full house | +4 |
-| 3 | Maică-ta la piață | haggling master | +12 |
-| 4 | Maică-ta la TV | reality show | +40 |
-| 5 | Maică-ta în lift | the lift goes down | +150 |
-| 6 | Maică-ta pe OLX | re-sold at a profit | +600 |
-| 7 | Maică-ta cu antena | full broadcast | +3,000 |
-| 8 | Maică-ta în autobuz | takes two seats | +12,000 |
+### 6.2 Passive upgrades (MAME/sec generators)
+
+| #   | Building            | Joke                | MAME/sec |
+| --- | ------------------- | ------------------- | -------- |
+| 1   | Maică-ta la sală    | she's working out   | +1       |
+| 2   | Maică-ta la bingo   | full house          | +4       |
+| 3   | Maică-ta la piață   | haggling master     | +12      |
+| 4   | Maică-ta la TV      | reality show        | +40      |
+| 5   | Maică-ta în lift    | the lift goes down  | +150     |
+| 6   | Maică-ta pe OLX     | re-sold at a profit | +600     |
+| 7   | Maică-ta cu antena  | full broadcast      | +3,000   |
+| 8   | Maică-ta în autobuz | takes two seats     | +12,000  |
 
 - Each building has a **cost that scales** (`cost × 1.15` per purchase) and a
   **"owned" count** shown next to it.
@@ -154,13 +156,13 @@ Fun pop-up badges, each grants a tiny bonus (e.g. +5% global) or is purely
 cosmetic. Suggestions:
 
 - **First Click** — first click
-- **100 Mame** — first 100 Mame
+- **100 MAME** — first 100 MAME
 - **First Building** — buy your first building
 - **Over 100 kg** — mom hits 100 kg
 - **Bingo!** — own 10 Bingo buildings
 - **Listed on OLX** — list your mom on OLX
 - **Antenna Installed** — give your mom an antenna
-- **One Million Mame** — 1M total Mame earned
+- **One Million MAME** — 1M total MAME earned
 - **Your Mom on TV** — own 25 TV buildings
 - **Legend** — own at least one of every click upgrade
 
@@ -175,21 +177,21 @@ cosmetic. Suggestions:
 - **Mid (5–20 min):** passive income takes over; buy expensive click upgrades;
   first achievements pop.
 - **Late (20–60 min):** big multipliers (OLX / antena), chase Golden Maică-ta,
-  hit 1M Mame, unlock "Legend".
+  hit 1M MAME, unlock "Legend".
 
 ## 10. Save data
 
 - Auto-save to `localStorage` every 5s and on `visibilitychange`.
-- Store: `mame`, `clickPower`, `buildings` (owned counts), `achievements`,
+- Store: `MAME`, `clickPower`, `buildings` (owned counts), `achievements`,
   `totalEarned`, `kg`, `lastSeen` timestamp.
-- On load, grant **offline income** = `(Mame/sec) × time away × 0.5` (capped at
+- On load, grant **offline income** = `(MAME/sec) × time away × 0.5` (capped at
   8h), shown as a "maică-ta a muncit cât ai lipsit" message.
 
 ## 11. UI / layout
 
 ```
 ┌──────────────────────────────────────────────┐
-│  Mame: 12.4K   (+340/sec)          [kg: 87] │  ← top HUD
+│  MAME: 12.4K   (+340/sec)          [kg: 87] │  ← top HUD
 ├──────────────────────────────────────────────┤
 │                                              │
 │           ( clickable MOM avatar )           │  ← main click area
@@ -234,8 +236,8 @@ Full details in [`TECH_STACK.md`](./TECH_STACK.md) and
 
 ## 13. Milestones / build order
 
-1. **M1 — Core click:** clickable mom, +1 Mame, floating roast bubble, HUD.
-2. **M2 — Passive income:** buildings list, Mame/sec tick, buy logic, cost scaling.
+1. **M1 — Core click:** clickable mom, +1 MAME, floating roast bubble, HUD.
+2. **M2 — Passive income:** buildings list, MAME/sec tick, buy logic, cost scaling.
 3. **M3 — Click upgrades:** click-power upgrades, `+N` popups.
 4. **M4 — Achievements:** badge list + popup, first 5 achievements.
 5. **M5 — Save & offline:** localStorage save/load, offline income message.
@@ -250,4 +252,4 @@ Full details in [`TECH_STACK.md`](./TECH_STACK.md) and
 
 ---
 
-*Status: design draft — ready to implement.*
+_Status: design draft — ready to implement._

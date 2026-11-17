@@ -1,8 +1,8 @@
 /**
- * Building definitions (passive Mame/sec generators).
+ * Building definitions (passive MAME/sec generators).
  *
- * kg/sec is not stored per building — it is derived from `mamePerSec` via
- * `kgFromMame` in game.ts, the single source of truth for the Mame→kg rate.
+ * kg/sec is not stored per building — it is derived from `MAMEPerSec` via
+ * `kgFromMAME` in game.ts, the single source of truth for the MAME→kg rate.
  *
  * Click upgrades (M3) will be added alongside these later. Building base costs
  * are not specified in GAME_DESIGN.md, so they follow the click-upgrade
@@ -27,7 +27,7 @@ export const BUILDINGS: readonly Building[] = [
 		icon: ICONS.gym.svg,
 		color: ICONS.gym.color,
 		baseCost: 15,
-		mamePerSec: 1,
+		MAMEPerSec: 1,
 		costMultiplier: COST_MULTIPLIER,
 	},
 	{
@@ -37,7 +37,7 @@ export const BUILDINGS: readonly Building[] = [
 		icon: ICONS.bingo.svg,
 		color: ICONS.bingo.color,
 		baseCost: 100,
-		mamePerSec: 4,
+		MAMEPerSec: 4,
 		costMultiplier: COST_MULTIPLIER,
 	},
 	{
@@ -47,7 +47,7 @@ export const BUILDINGS: readonly Building[] = [
 		icon: ICONS.market.svg,
 		color: ICONS.market.color,
 		baseCost: 1_100,
-		mamePerSec: 12,
+		MAMEPerSec: 12,
 		costMultiplier: COST_MULTIPLIER,
 	},
 	{
@@ -57,7 +57,7 @@ export const BUILDINGS: readonly Building[] = [
 		icon: ICONS.tv.svg,
 		color: ICONS.tv.color,
 		baseCost: 12_000,
-		mamePerSec: 40,
+		MAMEPerSec: 40,
 		costMultiplier: COST_MULTIPLIER,
 	},
 	{
@@ -67,7 +67,7 @@ export const BUILDINGS: readonly Building[] = [
 		icon: ICONS.lift.svg,
 		color: ICONS.lift.color,
 		baseCost: 130_000,
-		mamePerSec: 150,
+		MAMEPerSec: 150,
 		costMultiplier: COST_MULTIPLIER,
 	},
 	{
@@ -77,7 +77,7 @@ export const BUILDINGS: readonly Building[] = [
 		icon: ICONS.olx.svg,
 		color: ICONS.olx.color,
 		baseCost: 1_400_000,
-		mamePerSec: 600,
+		MAMEPerSec: 600,
 		costMultiplier: COST_MULTIPLIER,
 	},
 	{
@@ -87,7 +87,7 @@ export const BUILDINGS: readonly Building[] = [
 		icon: ICONS.antenna.svg,
 		color: ICONS.antenna.color,
 		baseCost: 20_000_000,
-		mamePerSec: 3_000,
+		MAMEPerSec: 3_000,
 		costMultiplier: COST_MULTIPLIER,
 	},
 	{
@@ -97,7 +97,7 @@ export const BUILDINGS: readonly Building[] = [
 		icon: ICONS.bus.svg,
 		color: ICONS.bus.color,
 		baseCost: 330_000_000,
-		mamePerSec: 12_000,
+		MAMEPerSec: 12_000,
 		costMultiplier: COST_MULTIPLIER,
 	},
 ];
@@ -117,7 +117,7 @@ export function buildingCost(building: Building, owned: number): number {
 /**
  * Click upgrades (repeatable purchases that raise click power per unit owned).
  * They work exactly like buildings — cost scales ×1.15 per purchase — but their
- * `effect` is added to click power instead of passive Mame/sec. Base costs
+ * `effect` is added to click power instead of passive MAME/sec. Base costs
  * follow the §6.1 progression and are trivial to retune here.
  */
 export const CLICK_UPGRADES: readonly ClickUpgrade[] = [

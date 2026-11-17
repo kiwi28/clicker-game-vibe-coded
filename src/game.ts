@@ -13,13 +13,13 @@ import type { BuildingId, ClickUpgradeId, GameState } from "./types";
 
 const BASE_CLICK_POWER = 1;
 
-/** kg gained per 1 Mame — the single source of truth tying weight to income. */
+/** kg gained per 1 MAME — the single source of truth tying weight to income. */
 export const KG_PER_MAME = 1;
 
 export function createInitialState(): GameState {
 	return {
-		mame: 0,
-		mamePerSec: 0,
+		MAME: 0,
+		MAMEPerSec: 0,
 		kg: 0,
 		moms: 1,
 		totalEarned: 0,
@@ -53,8 +53,8 @@ export function createInitialState(): GameState {
 /** Resets `state` in place back to a fresh game (keeps the same reference). */
 export function resetState(state: GameState): void {
 	const fresh = createInitialState();
-	state.mame = fresh.mame;
-	state.mamePerSec = fresh.mamePerSec;
+	state.MAME = fresh.MAME;
+	state.MAMEPerSec = fresh.MAMEPerSec;
 	state.kg = fresh.kg;
 	state.moms = fresh.moms;
 	state.totalEarned = fresh.totalEarned;
@@ -73,24 +73,24 @@ export function progressRate(moms: number): number {
 }
 
 /**
- * Converts a Mame amount into kg — the single source of truth for how income
- * becomes weight. `kg = Mame × KG_PER_MAME × progressRate(moms)`, so kg scales
+ * Converts a MAME amount into kg — the single source of truth for how income
+ * becomes weight. `kg = MAME × KG_PER_MAME × progressRate(moms)`, so kg scales
  * down with each extra mom exactly like a click does.
  */
-export function kgFromMame(mame: number, moms: number): number {
-	return mame * KG_PER_MAME * progressRate(moms);
+export function kgFromMAME(MAME: number, moms: number): number {
+	return MAME * KG_PER_MAME * progressRate(moms);
 }
 
 /**
  * Reaches the end of the final stage: adds a mom and resets all progress
- * (kg, Mame, passive income, buildings) while keeping the growing mom count,
+ * (kg, MAME, passive income, buildings) while keeping the growing mom count,
  * so the game is endless.
  */
 export function prestige(state: GameState): void {
 	state.moms += 1;
 	state.kg = 0;
-	state.mame = 0;
-	state.mamePerSec = 0;
+	state.MAME = 0;
+	state.MAMEPerSec = 0;
 	state.buildings = createInitialState().buildings;
 	state.upgrades = createInitialState().upgrades;
 }
@@ -105,8 +105,8 @@ export function clickPower(state: GameState): number {
 }
 
 /**
- * Applies one click: the Mame gain is click power × stage bonus, while the kg
- * gain is derived from click power alone through the single Mame→kg source of
+ * Applies one click: the MAME gain is click power × stage bonus, while the kg
+ * gain is derived from click power alone through the single MAME→kg source of
  * truth. The upgrades multiplier grows kg, but the stage bonus is click
  * income only and does not increase kg.
  */
@@ -114,8 +114,8 @@ export function clickMom(state: GameState): number {
 	state.totalClicks += 1;
 	const power = clickPower(state);
 	const gain = power * bonusMultiplier(getStage(state.kg).stage);
-	state.kg += kgFromMame(power, state.moms);
-	state.mame += gain;
+	state.kg += kgFromMAME(power, state.moms);
+	state.MAME += gain;
 	state.totalEarned += gain;
 	return gain;
 }
@@ -129,21 +129,21 @@ export function nextCost(id: BuildingId, state: GameState): number {
 /** Buys one of `id` if affordable and recomputes passive income. */
 export function buyBuilding(id: BuildingId, state: GameState): void {
 	const cost = nextCost(id, state);
-	if (state.mame < cost) return;
+	if (state.MAME < cost) return;
 	const owned = state.buildings[id] ?? 0;
-	state.mame -= cost;
+	state.MAME -= cost;
 	state.buildings[id] = owned + 1;
-	state.mamePerSec = passivePerSecond(state);
+	state.MAMEPerSec = passivePerSecond(state);
 }
 
 /**
- * How many of `id` can currently be bought with the Mame on hand. Matches the
+ * How many of `id` can currently be bought with the MAME on hand. Matches the
  * buying loop in `buyMaxBuilding` exactly so the displayed count is truthful.
  */
 export function maxAffordable(id: BuildingId, state: GameState): number {
 	const building = getBuilding(id);
 	let owned = state.buildings[id] ?? 0;
-	let remaining = state.mame;
+	let remaining = state.MAME;
 	let count = 0;
 	while (remaining >= buildingCost(building, owned)) {
 		remaining -= buildingCost(building, owned);
@@ -163,15 +163,18 @@ export function buyMaxBuilding(id: BuildingId, state: GameState): void {
 	if (bought === 0) return;
 	let owned = state.buildings[id] ?? 0;
 	for (let i = 0; i < bought; i += 1) {
-		state.mame -= buildingCost(building, owned);
+		state.MAME -= buildingCost(building, owned);
 		owned += 1;
 	}
 	state.buildings[id] = owned;
-	state.mamePerSec = passivePerSecond(state);
+	state.MAMEPerSec = passivePerSecond(state);
 }
 
 /** Cost of the next purchase of `id` given its current owned count. */
-export function nextClickUpgradeCost(id: ClickUpgradeId, state: GameState): number {
+export function nextClickUpgradeCost(
+	id: ClickUpgradeId,
+	state: GameState,
+): number {
 	const upgrade = getClickUpgrade(id);
 	return clickUpgradeCost(upgrade, state.upgrades[id] ?? 0);
 }
@@ -179,14 +182,14 @@ export function nextClickUpgradeCost(id: ClickUpgradeId, state: GameState): numb
 /** Buys one of `id` if affordable. */
 export function buyClickUpgrade(id: ClickUpgradeId, state: GameState): void {
 	const cost = nextClickUpgradeCost(id, state);
-	if (state.mame < cost) return;
+	if (state.MAME < cost) return;
 	const owned = state.upgrades[id] ?? 0;
-	state.mame -= cost;
+	state.MAME -= cost;
 	state.upgrades[id] = owned + 1;
 }
 
 /**
- * How many of `id` can currently be bought with the Mame on hand. Mirrors the
+ * How many of `id` can currently be bought with the MAME on hand. Mirrors the
  * buying loop in `buyMaxClickUpgrade` so the displayed count is truthful.
  */
 export function maxAffordableClickUpgrade(
@@ -195,7 +198,7 @@ export function maxAffordableClickUpgrade(
 ): number {
 	const upgrade = getClickUpgrade(id);
 	let owned = state.upgrades[id] ?? 0;
-	let remaining = state.mame;
+	let remaining = state.MAME;
 	let count = 0;
 	while (remaining >= clickUpgradeCost(upgrade, owned)) {
 		remaining -= clickUpgradeCost(upgrade, owned);
@@ -212,30 +215,30 @@ export function buyMaxClickUpgrade(id: ClickUpgradeId, state: GameState): void {
 	if (bought === 0) return;
 	let owned = state.upgrades[id] ?? 0;
 	for (let i = 0; i < bought; i += 1) {
-		state.mame -= clickUpgradeCost(upgrade, owned);
+		state.MAME -= clickUpgradeCost(upgrade, owned);
 		owned += 1;
 	}
 	state.upgrades[id] = owned;
 }
 
-/** Sum of all buildings' Mame income. */
+/** Sum of all buildings' MAME income. */
 export function passivePerSecond(state: GameState): number {
 	let total = 0;
 	for (const building of BUILDINGS) {
-		total += building.mamePerSec * (state.buildings[building.id] ?? 0);
+		total += building.MAMEPerSec * (state.buildings[building.id] ?? 0);
 	}
 	return total;
 }
 
-/** Passive kg/sec, derived from the Mame rate through the single Mame→kg rule. */
+/** Passive kg/sec, derived from the MAME rate through the single MAME→kg rule. */
 export function passiveKgPerSecond(state: GameState): number {
-	return kgFromMame(state.mamePerSec, state.moms);
+	return kgFromMAME(state.MAMEPerSec, state.moms);
 }
 
-/** Adds `seconds` worth of passive income (Mame and kg). */
+/** Adds `seconds` worth of passive income (MAME and kg). */
 export function tick(state: GameState, seconds: number): void {
-	const amount = state.mamePerSec * seconds;
-	state.mame += amount;
+	const amount = state.MAMEPerSec * seconds;
+	state.MAME += amount;
 	state.totalEarned += amount;
 	state.kg += passiveKgPerSecond(state) * seconds;
 }

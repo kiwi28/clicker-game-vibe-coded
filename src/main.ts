@@ -2,7 +2,14 @@ import "./style.css";
 import { checkAchievements, getAchievement } from "./achievements";
 import * as audio from "./audio";
 import { isLastStageComplete } from "./fatness";
-import { clickMom, createInitialState, passivePerSecond, prestige, resetState, tick } from "./game";
+import {
+	clickMom,
+	createInitialState,
+	passivePerSecond,
+	prestige,
+	resetState,
+	tick,
+} from "./game";
 import {
 	clearSave,
 	isLoaderDisabled,
@@ -31,7 +38,8 @@ const LOAD_RANDOM_MIN_MS = 4000;
 const LOAD_RANDOM_MAX_MS = 7000;
 const loadDurationMs = Math.max(
 	LOAD_MIN_MS,
-	LOAD_RANDOM_MIN_MS + Math.random() * (LOAD_RANDOM_MAX_MS - LOAD_RANDOM_MIN_MS),
+	LOAD_RANDOM_MIN_MS +
+		Math.random() * (LOAD_RANDOM_MAX_MS - LOAD_RANDOM_MIN_MS),
 );
 
 function runLoader(): void {
@@ -70,7 +78,7 @@ function runLoader(): void {
 const state = loadGameState() ?? createInitialState();
 // Recompute passive income from owned buildings so a loaded save matches the
 // building definitions (defends against stale or hand-edited saves).
-state.mamePerSec = passivePerSecond(state);
+state.MAMEPerSec = passivePerSecond(state);
 const els = ui.init(state);
 ui.render(els, state);
 audio.initAudio();
@@ -89,9 +97,15 @@ function resetGame(): void {
 
 /** Wires the sound toggle + music/click volume sliders to the audio module. */
 function setupAudioSettings(): void {
-	const soundToggle = document.getElementById("sound-toggle") as HTMLInputElement | null;
-	const musicSlider = document.getElementById("music-volume") as HTMLInputElement | null;
-	const clickSlider = document.getElementById("click-volume") as HTMLInputElement | null;
+	const soundToggle = document.getElementById(
+		"sound-toggle",
+	) as HTMLInputElement | null;
+	const musicSlider = document.getElementById(
+		"music-volume",
+	) as HTMLInputElement | null;
+	const clickSlider = document.getElementById(
+		"click-volume",
+	) as HTMLInputElement | null;
 
 	if (soundToggle !== null) {
 		soundToggle.checked = !audio.isMuted();
@@ -137,17 +151,17 @@ function checkAndShowAchievements(): void {
 
 const openDevModal = ui.setupDevMenu({
 	read: () => ({
-		mame: state.mame,
+		MAME: state.MAME,
 		kg: state.kg,
 		moms: state.moms,
 		buildings: state.buildings,
 	}),
 	apply: (next) => {
-		state.mame = next.mame;
+		state.MAME = next.MAME;
 		state.kg = next.kg;
 		state.moms = next.moms;
 		state.buildings = next.buildings;
-		state.mamePerSec = passivePerSecond(state);
+		state.MAMEPerSec = passivePerSecond(state);
 		saveGameState(state);
 		ui.render(els, state);
 	},

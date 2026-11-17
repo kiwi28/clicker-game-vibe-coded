@@ -32,7 +32,28 @@ export type AchievementId =
 	| "antenna"
 	| "million"
 	| "tv25"
-	| "legend";
+	| "legend"
+	| "clicks100"
+	| "clicks1000"
+	| "clicks10000"
+	| "billion"
+	| "trillion"
+	| "kg10"
+	| "kg600"
+	| "kg2000"
+	| "kg100000"
+	| "kg10000000"
+	| "gym10"
+	| "bus1"
+	| "buildings100"
+	| "slap10"
+	| "tiktok1"
+	| "upgrades50"
+	| "moms2"
+	| "moms5"
+	| "moms10"
+	| "mps100"
+	| "mps10000";
 
 export interface Building {
 	id: BuildingId;
@@ -41,7 +62,7 @@ export interface Building {
 	icon: string;
 	color: string;
 	baseCost: number;
-	mamePerSec: number;
+	MAMEPerSec: number;
 	costMultiplier: number;
 }
 
@@ -64,12 +85,12 @@ export interface Achievement {
 }
 
 export interface GameState {
-	mame: number;
-	mamePerSec: number;
+	MAME: number;
+	MAMEPerSec: number;
 	kg: number;
 	/** Number of mom icons (starts at 1; +1 each time the final stage ends). */
 	moms: number;
-	/** Lifetime Mame earned (clicks + passive), used by milestones. */
+	/** Lifetime MAME earned (clicks + passive), used by milestones. */
 	totalEarned: number;
 	/** Lifetime clicks on the mom. */
 	totalClicks: number;

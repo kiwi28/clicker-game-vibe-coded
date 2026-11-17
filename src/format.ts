@@ -4,7 +4,7 @@ const UNITS = ["", "K", "M", "B", "T"] as const;
 
 /**
  * Formats a number for display: raw below 1,000, then 1.2K / 3.4M / 1.1B /
- * 2.9T with up to one decimal. Values are floored so partial Mame never round
+ * 2.9T with up to one decimal. Values are floored so partial MAME never round
  * up to a whole unit the player does not have.
  */
 export function formatNumber(value: number): string {
@@ -36,7 +36,7 @@ export function formatNumber(value: number): string {
  * Formats the header MAME total with up to two decimals (rounded), keeping the
  * K/M/B/T abbreviation for large values.
  */
-export function formatMame(value: number): string {
+export function formatMAME(value: number): string {
 	const rounded = Math.round(value * 100) / 100;
 	if (rounded < 1000) return trimDecimals(rounded);
 

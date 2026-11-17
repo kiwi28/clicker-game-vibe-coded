@@ -28,12 +28,12 @@ function isFiniteNumber(value: unknown): value is number {
 function parseGameState(value: unknown): GameState | null {
 	if (!isRecord(value)) return null;
 
-	const mame = value.mame;
-	const mamePerSec = value.mamePerSec;
+	const MAME = value.MAME;
+	const MAMEPerSec = value.MAMEPerSec;
 	const kg = value.kg;
 	const buildingsRaw = value.buildings;
-	if (!isFiniteNumber(mame)) return null;
-	if (!isFiniteNumber(mamePerSec)) return null;
+	if (!isFiniteNumber(MAME)) return null;
+	if (!isFiniteNumber(MAMEPerSec)) return null;
 	if (!isFiniteNumber(kg)) return null;
 	if (!isRecord(buildingsRaw)) return null;
 
@@ -74,8 +74,8 @@ function parseGameState(value: unknown): GameState | null {
 	const totalEarnedRaw = value.totalEarned;
 	let totalEarned: number;
 	if (totalEarnedRaw === undefined) {
-		// Legacy saves predate lifetime tracking; fall back to current Mame.
-		totalEarned = mame;
+		// Legacy saves predate lifetime tracking; fall back to current MAME.
+		totalEarned = MAME;
 	} else if (isFiniteNumber(totalEarnedRaw) && totalEarnedRaw >= 0) {
 		totalEarned = totalEarnedRaw;
 	} else {
@@ -134,8 +134,8 @@ function parseGameState(value: unknown): GameState | null {
 	}
 
 	return {
-		mame,
-		mamePerSec,
+		MAME,
+		MAMEPerSec,
 		kg,
 		moms,
 		totalEarned,

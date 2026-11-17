@@ -2,13 +2,13 @@
 
 import { ACHIEVEMENTS } from "./achievements";
 import { bonusMultiplier, getStage, scaleFactor } from "./fatness";
-import { formatMame, formatNumber } from "./format";
+import { formatMAME, formatNumber } from "./format";
 import {
 	buyBuilding,
 	buyClickUpgrade,
 	buyMaxBuilding,
 	buyMaxClickUpgrade,
-	kgFromMame,
+	kgFromMAME,
 	maxAffordable,
 	maxAffordableClickUpgrade,
 	nextClickUpgradeCost,
@@ -81,7 +81,7 @@ export function isExploding(): boolean {
 }
 
 export interface Elements {
-	mame: HTMLElement;
+	MAME: HTMLElement;
 	mps: HTMLElement;
 	kg: HTMLElement;
 	mom: HTMLButtonElement;
@@ -136,7 +136,7 @@ function byId(id: string): HTMLElement {
 
 function queryElements(): Elements {
 	return {
-		mame: byId("mame-value"),
+		MAME: byId("MAME-value"),
 		mps: byId("mps-value"),
 		kg: byId("kg-value"),
 		mom: byId("mom") as HTMLButtonElement,
@@ -188,8 +188,8 @@ function renderHud(els: Elements, state: GameState): void {
 	}
 	currentStage = stage.stage;
 
-	els.mame.textContent = formatMame(state.mame);
-	els.mps.textContent = formatNumber(state.mamePerSec);
+	els.MAME.textContent = formatMAME(state.MAME);
+	els.mps.textContent = formatNumber(state.MAMEPerSec);
 	els.kg.textContent = formatKg(state.kg);
 
 	els.momEmoji.textContent = isExploding() ? EXPLOSION_EMOJI : stage.emoji;
@@ -404,9 +404,9 @@ export function jiggleMoms(els: Elements): void {
 	els.momCluster.classList.add("is-jiggling");
 }
 
-/** Per-building income line: Mame/s plus the derived kg/s (mom-scaled). */
-function buildingRateText(mamePerSec: number, moms: number): string {
-	return `+${formatNumber(mamePerSec)} Mame/s · +${formatKg(kgFromMame(mamePerSec, moms))} kg/s`;
+/** Per-building income line: MAME/s plus the derived kg/s (mom-scaled). */
+function buildingRateText(MAMEPerSec: number, moms: number): string {
+	return `+${formatNumber(MAMEPerSec)} MAME/s · +${formatKg(kgFromMAME(MAMEPerSec, moms))} kg/s`;
 }
 
 function renderBuildings(state: GameState): void {
@@ -416,10 +416,10 @@ function renderBuildings(state: GameState): void {
 		const owned = state.buildings[building.id] ?? 0;
 		const cost = nextCost(building.id, state);
 		view.owned.textContent = `×${owned}`;
-		view.cost.textContent = `${formatNumber(cost)} Mame`;
-		view.rate.textContent = buildingRateText(building.mamePerSec, state.moms);
-		view.buy.disabled = state.mame < cost;
-		view.buyMax.disabled = state.mame < cost;
+		view.cost.textContent = `${formatNumber(cost)} MAME`;
+		view.rate.textContent = buildingRateText(building.MAMEPerSec, state.moms);
+		view.buy.disabled = state.MAME < cost;
+		view.buyMax.disabled = state.MAME < cost;
 		const affordable = maxAffordable(building.id, state);
 		view.buyMax.textContent =
 			affordable > 0 ? `Buy Max (${affordable})` : "Buy Max";
@@ -487,7 +487,7 @@ function buildBuildingList(els: Elements, state: GameState): void {
 
 		const rate = document.createElement("span");
 		rate.className = "building__rate";
-		rate.textContent = buildingRateText(building.mamePerSec, state.moms);
+		rate.textContent = buildingRateText(building.MAMEPerSec, state.moms);
 
 		const cost = document.createElement("span");
 		cost.className = "building__cost";
@@ -596,9 +596,9 @@ function renderUpgrades(state: GameState): void {
 		const owned = state.upgrades[upgrade.id] ?? 0;
 		const cost = nextClickUpgradeCost(upgrade.id, state);
 		view.owned.textContent = `×${owned}`;
-		view.cost.textContent = `${formatNumber(cost)} Mame`;
-		view.buy.disabled = state.mame < cost;
-		view.buyMax.disabled = state.mame < cost;
+		view.cost.textContent = `${formatNumber(cost)} MAME`;
+		view.buy.disabled = state.MAME < cost;
+		view.buyMax.disabled = state.MAME < cost;
 		const affordable = maxAffordableClickUpgrade(upgrade.id, state);
 		view.buyMax.textContent =
 			affordable > 0 ? `Buy Max (${affordable})` : "Buy Max";
@@ -756,7 +756,7 @@ export function spawnGain(
 	gain: number,
 	at: FloatPoint,
 ): void {
-	spawnFloat(parent, `+${formatGain(gain)} Mame`, "gain", at);
+	spawnFloat(parent, `+${formatGain(gain)} MAME`, "gain", at);
 }
 
 function formatGain(value: number): string {
@@ -852,15 +852,15 @@ export function spawnBuildingSlices(els: Elements, state: GameState): void {
 	}
 }
 
-/** The subset of `GameState` the dev panel edits (mame/sec is recomputed). */
+/** The subset of `GameState` the dev panel edits (MAME/sec is recomputed). */
 export interface DevState {
-	mame: number;
+	MAME: number;
 	kg: number;
 	moms: number;
 	buildings: Record<BuildingId, number>;
 }
 
-type DevFieldKey = "mame" | "kg" | "moms" | BuildingId;
+type DevFieldKey = "MAME" | "kg" | "moms" | BuildingId;
 
 interface DevField {
 	key: DevFieldKey;
@@ -888,7 +888,7 @@ function buildDevFields(container: HTMLElement): DevField[] {
 		fields.push({ key, input });
 	};
 
-	add("mame", "Mame");
+	add("MAME", "MAME");
 	add("kg", "kg");
 	add("moms", "Moms");
 	for (const building of BUILDINGS) {
@@ -899,7 +899,7 @@ function buildDevFields(container: HTMLElement): DevField[] {
 
 function fillDevFields(fields: readonly DevField[], state: DevState): void {
 	for (const field of fields) {
-		if (field.key === "mame") field.input.value = state.mame.toString();
+		if (field.key === "MAME") field.input.value = state.MAME.toString();
 		else if (field.key === "kg") field.input.value = state.kg.toString();
 		else if (field.key === "moms") field.input.value = state.moms.toString();
 		else field.input.value = (state.buildings[field.key] ?? 0).toString();
@@ -907,7 +907,7 @@ function fillDevFields(fields: readonly DevField[], state: DevState): void {
 }
 
 function readDevFields(fields: readonly DevField[]): DevState {
-	let mame = 0;
+	let MAME = 0;
 	let kg = 0;
 	let moms = 1;
 	const buildings: Record<BuildingId, number> = {
@@ -924,13 +924,13 @@ function readDevFields(fields: readonly DevField[]): DevState {
 	for (const field of fields) {
 		const raw = Number(field.input.value);
 		const value = Number.isFinite(raw) ? raw : 0;
-		if (field.key === "mame") mame = value;
+		if (field.key === "MAME") MAME = value;
 		else if (field.key === "kg") kg = value;
 		else if (field.key === "moms") moms = Math.max(1, Math.floor(value));
 		else buildings[field.key] = Math.max(0, Math.floor(value));
 	}
 
-	return { mame, kg, moms, buildings };
+	return { MAME, kg, moms, buildings };
 }
 
 /**
