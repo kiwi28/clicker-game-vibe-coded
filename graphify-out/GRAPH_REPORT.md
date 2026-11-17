@@ -1,7 +1,7 @@
 # Graph Report - ai-slop-game  (2026-11-17)
 
 ## Corpus Check
-- 28 files · ~20,884 words
+- 28 files · ~20,908 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 20 file(s) not represented in the graph (top: .xml 10, (none) 4, .properties 2)
 - WARNING: 20 of 92 files seen (22%) have no supported extractor and are missing from this graph entirely. It may look complete while representing only part of the codebase.
@@ -12,7 +12,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3627cae9`
+- Built from commit: `d5bd629c`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -36,21 +36,21 @@
 4. `with` - 9 edges
 5. `renderHud()` - 8 edges
 6. `renderMoms()` - 8 edges
-7. `buyMaxBuilding()` - 7 edges
-8. `frame()` - 7 edges
-9. `BuildingId` - 7 edges
-10. `setupDevMenu()` - 7 edges
+7. `setupDevMenu()` - 7 edges
+8. `BuildingId` - 7 edges
+9. `frame()` - 7 edges
+10. `buyMaxBuilding()` - 7 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `parseGameState()` --indirect_call--> `isAchievementId()`  [INFERRED]
-  src/storage.ts → src/achievements.ts
-- `renderUpgrades()` --calls--> `formatNumber()`  [EXTRACTED]
-  src/ui.ts → src/format.ts
+- `init()` --calls--> `applyClickZonePattern()`  [EXTRACTED]
+  src/ui.ts → src/pattern.ts
+- `renderHud()` --calls--> `bonusMultiplier()`  [EXTRACTED]
+  src/ui.ts → src/fatness.ts
+- `renderHud()` --calls--> `getStage()`  [EXTRACTED]
+  src/ui.ts → src/fatness.ts
+- `renderMoms()` --calls--> `scaleFactor()`  [EXTRACTED]
+  src/ui.ts → src/fatness.ts
 - `buildingRateText()` --calls--> `kgFromMAME()`  [EXTRACTED]
-  src/ui.ts → src/game.ts
-- `renderBuildings()` --calls--> `nextCost()`  [EXTRACTED]
-  src/ui.ts → src/game.ts
-- `renderBuildings()` --calls--> `maxAffordable()`  [EXTRACTED]
   src/ui.ts → src/game.ts
 
 ## Import Cycles
